@@ -1,7 +1,5 @@
 package org.paddy.gui;
-import org.paddy.rest.GetAccount;
-import org.paddy.rest.GetContact;
-import org.paddy.rest.ThreadCompleteListener;
+import org.paddy.rest.*;
 
 import javax.swing.*;
 import javax.swing.event.MenuEvent;
@@ -14,17 +12,15 @@ import java.awt.event.WindowListener;
 import java.util.*;
 import static java.awt.SystemColor.desktop;
 public class RestJFrame extends JFrame implements ActionListener, MenuListener, WindowListener, ThreadCompleteListener {
-    JDesktopPane desktopP;
-    JMenuBar menuBar;
-    JMenu menus;
-    JMenuItem menuItems;
-    GetAccount getAccount;
-    GetContact getContact;
-    Object[][] data;
-    Map<String, String> accountsM;
+    private JDesktopPane desktopP;
+    private JMenuBar menuBar;
+    private JMenu menus;
+    private JMenuItem menuItems;
+    private GetAccount getAccount;
+    private Map<String, String> accountsM;
     private static final String[] columnNames = {"Id", "Salutation", "Title", "Last Name", "First Name", "Email", "Phone", "Mobile"};
-    Thread accT, contactT;
-    boolean ready = false;
+    private Thread accT, contactT;
+    private String selectedMenuS = "";
     public RestJFrame() throws HeadlessException {
         super("Salesforce REST requests");
         initComponents();
@@ -34,6 +30,7 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
         getAccount.addListener(this);
         accT = new Thread(getAccount);
         accT.start();
+        //Get get = new Get();
     }
     private void initComponents() {
         int inset = 50;
@@ -58,15 +55,18 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
     private void createMenu() {
         menuBar = new JMenuBar();
         Set<String> itemsS;
-        Set<String> menusS = new HashSet<>();
-        menusS = new LinkedHashSet<>(Arrays.asList("File", "Edit", "Objects"));
+        Set<String> menusS = new LinkedHashSet<>(Arrays.asList("File", "Edit", "Accounts", "Contacts", "Opportunities"));
         int i=0;
         for (String menu : menusS) {
             menus = new JMenu(menu);
             switch(i) {
                 case 0: itemsS = new LinkedHashSet<>(Arrays.asList("Open", "New", "Close", "Close All", "Exit"));
                     break;
-                case 2: itemsS = new LinkedHashSet<>(Arrays.asList("Accounts", "Contacts", "Opportunities"));
+                case 2: itemsS = new LinkedHashSet<>(Arrays.asList("DELETE", "GET", "PATCH", "POST", "PUT"));
+                    break;
+                case 3: itemsS = new LinkedHashSet<>(Arrays.asList("DELETE", "GET", "PATCH", "POST", "PUT"));
+                    break;
+                case 4: itemsS = new LinkedHashSet<>(Arrays.asList("DELETE", "GET", "PATCH", "POST", "PUT"));
                     break;
                 default: itemsS = new HashSet<>();
                     break;
@@ -74,7 +74,7 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
             for (String entry : itemsS) {
                 menuItems = new JMenuItem(entry);
                 menuItems.addActionListener(this);
-                if(entry.equals("Close All")) {
+                if(entry.equals("POST")) {
 
                 }
                 else {
@@ -93,21 +93,7 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
         desktopP.setBackground(desktop);
         this.setContentPane(desktopP);
     }
-    /*
-    private void addContactTableAccountByName(String searchString) {
-        Object[][] data = GetContact.getContactsObjectByAccountName(searchString);
-        if(data != null){
-            String title = searchString + ": " + data.length + " entries";
-            InternalFrame internalFrame = new InternalFrame(title, true, true, true, true, new Dimension(this.getWidth()/2, this.getHeight()/2));
-            JTable table = new JTable(data, columnNames);
-            JScrollPane scrollPane = new JScrollPane(table);
-            table.setFillsViewportHeight(true);
-            internalFrame.add(scrollPane);
-            desktopP.add(internalFrame);
-        }
-    }
-    */
-    private void addContactTable(String accountName) {
+    private synchronized void addContactTable(Object[][] data, String accountName) {
         if(data != null){
             String title = accountName + ": " + data.length + " entries";
             InternalFrame internalFrame = new InternalFrame(title, true, true, true, true, new Dimension(this.getWidth()/2, this.getHeight()/2));
@@ -116,43 +102,59 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
             table.setFillsViewportHeight(true);
             internalFrame.add(scrollPane);
             desktopP.add(internalFrame);
-        }
-    }
-    public void actionPerformed(ActionEvent e) {
-        if(e.getActionCommand().equals("Accounts")) {
-        }
-        else if(e.getActionCommand().equals("Contacts")) {
-            for(String accountId : accountsM.keySet()) {
-                ready = false;
-                getContact = new GetContact(accountId, accountsM.get(accountId));
-                getContact.setName("Contacts for Account: " + accountId);
-                getContact.addListener(this);
-                contactT = new Thread(getContact);
-                contactT.setPriority(Thread.MIN_PRIORITY);
-                contactT.start();
-                //addContactTableByAccountId(id, accountsM.get(id));
-                while(ready == false) {
-                    try {
-                        //System.out.println("Current Thread: " + Thread.currentThread().getId());
-                        contactT.yield();
-                        contactT.join();
-                        //System.out.println("Current Thread: " + Thread.currentThread().getId());
-                    }
-                    catch (InterruptedException ie) {
-                        System.err.println("InteruptedException: " + ie);
+            if(InternalFrame.getOpenFrameCount() == 1) {
+                JMenu m = menuBar.getMenu(0);
+                for (int i = 0; i < m.getItemCount(); i++) {
+                    if(m.getItem(i).getText().equals("Close All")) {
+                        m.getItem(i).setEnabled(true);
                     }
                 }
             }
         }
-        else if(e.getActionCommand().equals("Opportunities")) {
-            System.out.println("Getting: " + e.getActionCommand());
-        }
-        else if(e.getActionCommand().equals("Close All")) {
-            for(JInternalFrame internalFrame : desktopP.getAllFrames()) {
-                desktopP.remove(internalFrame);
-                internalFrame.dispose();
+    }
+    public void actionPerformed(ActionEvent e) {
+        if(selectedMenuS.equals("File")) {
+            if (e.getActionCommand().equals("Close All")) {
+                for (JInternalFrame internalFrame : desktopP.getAllFrames()) {
+                    desktopP.remove(internalFrame);
+                    internalFrame.dispose();
+                }
                 revalidate();
                 repaint();
+                JMenu m = menuBar.getMenu(0);
+                for (int i = 0; i < m.getItemCount(); i++) {
+                    if (m.getItem(i).getText().equals("Close All")) {
+                        m.getItem(i).setEnabled(false);
+                    }
+                }
+            }
+        }
+        if(selectedMenuS.equals("Edit")) {
+            System.out.println("Action command: " + e.getActionCommand());
+        }
+        else if(selectedMenuS.equals("Accounts")) {
+            System.out.println("Action command: " + e.getActionCommand());
+            if (e.getActionCommand().equals("POST")) {
+                PutAccount.insertAccounts();
+            }
+        }
+        else if(selectedMenuS.equals("Contacts")) {
+            if( e.getActionCommand().equals("GET")) {
+                GetContact getContact;
+                for (String accountId : accountsM.keySet()) {
+                    getContact = new GetContact(accountId, accountsM.get(accountId));
+                    getContact.setName("Contacts for Account: " + accountId);
+                    getContact.addListener(this);
+                    contactT = new Thread(getContact);
+                    //contactT.setPriority(Thread.MIN_PRIORITY);
+                    contactT.start();
+                }
+            }
+        }
+        else if(e.getActionCommand().equals("Opportunities")) {
+            System.out.println("Action command: " + e.getActionCommand());
+            if( e.getActionCommand().equals("GET")) {
+                System.out.println("Getting: " + e.getActionCommand());
             }
         }
         else {
@@ -160,15 +162,16 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
         }
     }
     public void menuSelected(MenuEvent e) {
-        //System.out.println("menuSelected: " + getNenuText(e));
+        //System.out.println("menuSelected: " + getMenuText(e));
+        selectedMenuS = getMenuText(e);
     }
     public void menuDeselected(MenuEvent e) {
-        //System.out.println("menuDeselected: " + getNenuText(e));
+        //System.out.println("menuDeselected: " + getMenuText(e));
     }
     public void menuCanceled(MenuEvent e) {
-        System.out.println("menuCanceled: " + getNenuText(e));
+        System.out.println("menuCanceled: " + getMenuText(e));
     }
-    private String getNenuText(MenuEvent e) {
+    private String getMenuText(MenuEvent e) {
         JMenu m = (JMenu) e.getSource();
         return m.getText();
     }
@@ -195,21 +198,25 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
     public void windowOpened(WindowEvent e) {
         //System.out.println("windowOpened");
     }
-    public void notifyOfThreadComplete(Thread getThread) {
-        //System.out.println("Thread complete: " + getThread.getName());
-        if(getThread.getName().equals("Account")) {
-            accountsM = getAccount.getAccountsM();
-            getAccount.removeListener(this);
-            JMenu m = menuBar.getMenu(menuBar.getMenuCount() - 1);
+    public void notifyOfThreadComplete(Thread notifyingThread) {
+        String currentThreadClassName = notifyingThread.getClass().getSimpleName();
+        if(currentThreadClassName.equals("GetAccount")) {
+            GetAccount gA = (GetAccount) notifyingThread;
+            accountsM = gA.getAccountsM();
+            gA.removeListener(this);
+            JMenu m = menuBar.getMenu(3);
+            JMenuItem item;
             for (int i = 0; i < m.getItemCount(); i++) {
-                m.getItem(i).setEnabled(true);
+                item = m.getItem(i);
+                if(item.getText().equals("GET")) {
+                    m.getItem(i).setEnabled(true);
+                }
             }
         }
-        else if(getThread.getName().substring(0,7).equals("Contact")) {
-            data = getContact.getObj();
-            addContactTable(getContact.getAccountName());
-            getContact.removeListener(this);
-            ready = true;
+        else if(currentThreadClassName.equals("GetContact")) {
+            GetContact gC = (GetContact)notifyingThread;
+            addContactTable(gC.getObj(), gC.getAccountName());
+            gC.removeListener(this);
         }
     }
 }

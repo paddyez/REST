@@ -8,7 +8,7 @@ public class Get {
     private static final String URI_BASE = "https://restful-developer-edition.eu12.force.com/services/apexrest/Rest";
     public Get() {
         String sfId = "0011r00001yq5UKAAY";
-        String requestURI = URI_BASE + "?Id=" + sfId;
+        String requestURI = URI_BASE + "?sObj=Account&q=all";//Id=" + sfId;
         String result;
         RestTemplate restTemplate = new RestTemplate();
         result = restTemplate.getForObject(requestURI, String.class);

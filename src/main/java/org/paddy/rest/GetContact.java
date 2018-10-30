@@ -5,6 +5,7 @@ import org.springframework.web.client.RestTemplate;
 public class GetContact extends NotifyingThread {
     private Object[][] obj = null;
     private String requestURI, accountName;
+    static final String URI_BASE = "https://restful-developer-edition.eu12.force.com/services/apexrest/Rest";
     public Object[][] getObj() { return obj; }
     public String getAccountName() { return accountName; }
     public GetContact(String accountId, String accountName) {

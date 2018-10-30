@@ -7,6 +7,9 @@ public class Account extends sfObject {
     private Address shippingAddress;
     public Contacts getContacts() {return contacts;}
     public Account() {}
+    public Account(String name) {
+        setName(name);
+    }
     public Account(Address shippingAddress,
                    Attributes attributes,
                    Contacts contacts,
@@ -17,6 +20,11 @@ public class Account extends sfObject {
         this.contacts = contacts;
         setId(id);
         setName(name);
+    }
+    public String getJSON() {
+        String toString = "";
+        toString += "{\"Name\":\"" + getName() + "\"}";
+        return toString;
     }
     @Override
     public String toString() {

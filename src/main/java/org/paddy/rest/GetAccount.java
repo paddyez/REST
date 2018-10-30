@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 public class GetAccount extends NotifyingThread {
     Map<String, String> accountsM;
+    static final String URI_BASE = "https://restful-developer-edition.eu12.force.com/services/apexrest/Rest";
     public Map<String, String> getAccountsM() {
         return accountsM;
     }

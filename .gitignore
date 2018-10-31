@@ -3,3 +3,4 @@
 /gradlew*
 /gradle
 /out
+/src/main/resources/config.json

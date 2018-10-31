@@ -23,7 +23,7 @@ public class Account extends sfObject {
     }
     public String getJSON() {
         String toString = "";
-        toString += "{\"Name\":\"" + getName() + "\"}";
+        toString += "{\"attributes\":{\"type\":\"Account\"},\"Name\":\"" + getName() + "\"}";
         return toString;
     }
     @Override

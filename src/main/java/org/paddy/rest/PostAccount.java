@@ -2,7 +2,7 @@ package org.paddy.rest;
 import org.paddy.sfObjects.Account;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 public class PostAccount extends NotifyingThread {
     String baseURI;
@@ -14,13 +14,13 @@ public class PostAccount extends NotifyingThread {
         //System.out.println("Accout: " + a.getName());
     }
     void insertAccounts() {
-        Set<String> accountsS = new HashSet<>();
+        Set<String> accountsS = new LinkedHashSet<>();
         Account a;
-        for(int i = 0; i < 1000; i++) {
+        for(int i = 0; i < 10; i++) {
             a = new Account("TestAccount Tester" + i);
             accountsS.add(a.getJSON());
         }
-        String newAccounts = "{\"accs\":[";
+        String newAccounts = "{\"sObjects\":[";
         newAccounts += String.join(",",accountsS);
         newAccounts += "]}";
         RestTemplate restTemplate = new RestTemplate();

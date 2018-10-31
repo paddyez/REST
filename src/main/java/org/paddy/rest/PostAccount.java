@@ -2,13 +2,11 @@ package org.paddy.rest;
 import org.paddy.sfObjects.Account;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-public class PutAccount extends NotifyingThread {
+public class PostAccount extends NotifyingThread {
     String baseURI;
-    public PutAccount(String baseURI) {
+    public PostAccount(String baseURI) {
         this.baseURI = baseURI;
     }
     void insertAccount() {

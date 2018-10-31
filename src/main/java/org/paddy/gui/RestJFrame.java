@@ -3,7 +3,6 @@ import org.paddy.rest.*;
 import org.springframework.boot.json.BasicJsonParser;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.util.Assert;
-import org.springframework.web.client.RestTemplate;
 
 import javax.swing.*;
 import javax.swing.event.MenuEvent;
@@ -17,6 +16,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import static java.awt.SystemColor.desktop;
 public class RestJFrame extends JFrame implements ActionListener, MenuListener, WindowListener, ThreadCompleteListener {
@@ -25,13 +25,14 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
     private JMenu menus;
     private JMenuItem menuItems;
     private GetAccount getAccount;
-    private PutAccount putAccount;
+    private PostAccount postAccount;
     private Map<String, String> accountsM;
     private final Set<String> restCommandsS = new LinkedHashSet<>(Arrays.asList("DELETE", "GET", "PATCH", "POST", "PUT"));
     private static final String[] columnNames = {"Id", "Salutation", "Title", "Last Name", "First Name", "Email", "Phone", "Mobile"};
     private Thread accT, contactT;
     private String selectedMenuS = "";
     private String baseURI;
+    private final String formatPattertTime = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
     public RestJFrame() throws HeadlessException {
         super("Salesforce REST requests");
         initComponents();
@@ -166,9 +167,13 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
         else if(selectedMenuS.equals("Accounts")) {
             System.out.println("Action command: " + e.getActionCommand());
             if (e.getActionCommand().equals("POST")) {
-                putAccount = new PutAccount(this.baseURI);
-                putAccount.addListener(this);
-                accT = new Thread(putAccount);
+                postAccount = new PostAccount(this.baseURI);
+                postAccount.addListener(this);
+                accT = new Thread(postAccount);
+                long yourmilliseconds = System.currentTimeMillis();
+                SimpleDateFormat sdf = new SimpleDateFormat(formatPattertTime);
+                Date resultdate = new Date(yourmilliseconds);
+                System.out.println("Thread starts: " + sdf.format(resultdate));
                 accT.start();
             }
             if( e.getActionCommand().equals("GET")) {
@@ -253,6 +258,12 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
                     m.getItem(i).setEnabled(true);
                 }
             }
+        }
+        if(currentThreadClassName.equals("PostAccount")) {
+            long yourmilliseconds = System.currentTimeMillis();
+            SimpleDateFormat sdf = new SimpleDateFormat(formatPattertTime);
+            Date resultdate = new Date(yourmilliseconds);
+            System.out.println("Thread ends: " + sdf.format(resultdate));
         }
         else if(currentThreadClassName.equals("GetContact")) {
             GetContact gC = (GetContact)notifyingThread;

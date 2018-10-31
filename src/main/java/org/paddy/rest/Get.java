@@ -5,7 +5,7 @@ import org.springframework.web.client.RestTemplate;
 import java.nio.charset.Charset;
 import java.util.*;
 public class Get {
-    private static final String URI_BASE = "https://restful-developer-edition.eu12.force.com/services/apexrest/Rest";
+    private static final String URI_BASE = "https://###SITENAME###-developer-edition.eu12.force.com/services/apexrest/###RestResource###";
     public Get() {
         String sfId = "0011r00001yq5UKAAY";
         String requestURI = URI_BASE + "?sObj=Account&q=all";//Id=" + sfId;

@@ -273,6 +273,6 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
         long yourmilliseconds = System.currentTimeMillis();
         SimpleDateFormat sdf = new SimpleDateFormat(formatPattertTime);
         Date resultdate = new Date(yourmilliseconds);
-        System.out.println(msg + ": " + sdf.format(resultdate));
+        System.out.println(ConsoleColors.YELLOW + msg + ": " + sdf.format(resultdate) + ConsoleColors.WHITE);
     }
 }

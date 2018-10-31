@@ -7,12 +7,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 public class PutAccount extends NotifyingThread {
-    static final String URI_BASE = "https://restful-developer-edition.eu12.force.com/services/apexrest/Rest";
-    public static void insertAccount() {
+    String baseURI;
+    public PutAccount(String baseURI) {
+        this.baseURI = baseURI;
+    }
+    void insertAccount() {
         Account a  = new Account("TestAccount");
         //System.out.println("Accout: " + a.getName());
     }
-    public static void insertAccounts() {
+    void insertAccounts() {
         Set<String> accountsS = new HashSet<>();
         Account a;
         for(int i = 0; i < 1000; i++) {
@@ -28,7 +31,7 @@ public class PutAccount extends NotifyingThread {
         HttpEntity<String> requestBody = new HttpEntity<>(newAccounts, headers);
         //System.out.println("Test 1: " + requestBody.getBody());
         ResponseEntity<String> result;
-        result = restTemplate.postForEntity(URI_BASE, requestBody, String.class);
+        result = restTemplate.postForEntity(this.baseURI, requestBody, String.class);
         if (result.getStatusCode() == HttpStatus.OK) {
             String s = result.getBody();
             System.out.println("(Client Side) Accounrs created: " + s);

@@ -1,5 +1,9 @@
 package org.paddy.gui;
 import org.paddy.rest.*;
+import org.springframework.boot.json.BasicJsonParser;
+import org.springframework.boot.json.JsonParser;
+import org.springframework.util.Assert;
+import org.springframework.web.client.RestTemplate;
 
 import javax.swing.*;
 import javax.swing.event.MenuEvent;
@@ -9,6 +13,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.*;
 import static java.awt.SystemColor.desktop;
 public class RestJFrame extends JFrame implements ActionListener, MenuListener, WindowListener, ThreadCompleteListener {
@@ -17,20 +25,18 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
     private JMenu menus;
     private JMenuItem menuItems;
     private GetAccount getAccount;
+    private PutAccount putAccount;
     private Map<String, String> accountsM;
+    private final Set<String> restCommandsS = new LinkedHashSet<>(Arrays.asList("DELETE", "GET", "PATCH", "POST", "PUT"));
     private static final String[] columnNames = {"Id", "Salutation", "Title", "Last Name", "First Name", "Email", "Phone", "Mobile"};
     private Thread accT, contactT;
     private String selectedMenuS = "";
+    private String baseURI;
     public RestJFrame() throws HeadlessException {
         super("Salesforce REST requests");
         initComponents();
+        readConfigFile();
         addWindowListener(this);
-        getAccount = new GetAccount();
-        getAccount.setName("Account");
-        getAccount.addListener(this);
-        accT = new Thread(getAccount);
-        accT.start();
-        //Get get = new Get();
     }
     private void initComponents() {
         int inset = 50;
@@ -52,6 +58,32 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
         this.setVisible(true);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
+    private void readConfigFile() {
+        Map<String, Object> jsonMap;
+        InputStream inputStream;
+        InputStreamReader inputStreamReader;
+        BufferedReader reader;
+        StringBuilder stringBuilder = new StringBuilder();
+        String line, configJSON;
+        inputStream = this.getClass().getResourceAsStream("../../../../resources/config.json");
+        Assert.notNull(inputStream, "Input stream is null! Check path?!");
+        inputStreamReader = new InputStreamReader(inputStream);
+        reader = new BufferedReader(inputStreamReader);
+        try {
+            while ((line = reader.readLine()) != null) {
+                stringBuilder.append(line);
+            }
+            reader.close();
+        }
+        catch (IOException ioe) {
+            System.err.println(ioe);
+        }
+        configJSON  = stringBuilder.toString();
+        JsonParser jsonParser = new BasicJsonParser();
+        jsonMap = jsonParser.parseMap(configJSON);
+        this.baseURI = (String)jsonMap.get("baseURI");
+        System.out.println(this.baseURI);
+    }
     private void createMenu() {
         menuBar = new JMenuBar();
         Set<String> itemsS;
@@ -62,19 +94,18 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
             switch(i) {
                 case 0: itemsS = new LinkedHashSet<>(Arrays.asList("Open", "New", "Close", "Close All", "Exit"));
                     break;
-                case 2: itemsS = new LinkedHashSet<>(Arrays.asList("DELETE", "GET", "PATCH", "POST", "PUT"));
+                case 1: itemsS = new HashSet<>();
                     break;
-                case 3: itemsS = new LinkedHashSet<>(Arrays.asList("DELETE", "GET", "PATCH", "POST", "PUT"));
-                    break;
-                case 4: itemsS = new LinkedHashSet<>(Arrays.asList("DELETE", "GET", "PATCH", "POST", "PUT"));
-                    break;
-                default: itemsS = new HashSet<>();
+                default: itemsS = restCommandsS;
                     break;
             }
             for (String entry : itemsS) {
                 menuItems = new JMenuItem(entry);
                 menuItems.addActionListener(this);
-                if(entry.equals("POST")) {
+                if(entry.equals("POST") && menu.equals("Accounts")) {
+
+                }
+                else if(entry.equals("GET") && menu.equals("Accounts")) {
 
                 }
                 else {
@@ -135,14 +166,24 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
         else if(selectedMenuS.equals("Accounts")) {
             System.out.println("Action command: " + e.getActionCommand());
             if (e.getActionCommand().equals("POST")) {
-                PutAccount.insertAccounts();
+                putAccount = new PutAccount(this.baseURI);
+                putAccount.addListener(this);
+                accT = new Thread(putAccount);
+                accT.start();
+            }
+            if( e.getActionCommand().equals("GET")) {
+                getAccount = new GetAccount(this.baseURI);
+                getAccount.setName("Account");
+                getAccount.addListener(this);
+                accT = new Thread(getAccount);
+                accT.start();
             }
         }
         else if(selectedMenuS.equals("Contacts")) {
             if( e.getActionCommand().equals("GET")) {
                 GetContact getContact;
                 for (String accountId : accountsM.keySet()) {
-                    getContact = new GetContact(accountId, accountsM.get(accountId));
+                    getContact = new GetContact(this.baseURI, accountId, accountsM.get(accountId));
                     getContact.setName("Contacts for Account: " + accountId);
                     getContact.addListener(this);
                     contactT = new Thread(getContact);

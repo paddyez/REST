@@ -6,13 +6,16 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 public class GetAccount extends NotifyingThread {
     Map<String, String> accountsM;
-    static final String URI_BASE = "https://restful-developer-edition.eu12.force.com/services/apexrest/Rest";
+    String baseURI;
     public Map<String, String> getAccountsM() {
         return accountsM;
     }
+    public GetAccount(String baseURI) {
+        this.baseURI = baseURI;
+    }
     private void createAccountMap() {
         accountsM = Collections.synchronizedMap(new LinkedHashMap<>());
-        String requestURI = URI_BASE + "?sObj=Account&q=all";
+        String requestURI = baseURI + "?sObj=Account&q=all";
         RestTemplate restTemplate = new RestTemplate();
         Account[] accounts = restTemplate.getForObject(requestURI, Account[].class);
         for(Account acc : accounts) {

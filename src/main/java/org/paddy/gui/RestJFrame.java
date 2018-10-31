@@ -32,7 +32,7 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
     private Thread accT, contactT;
     private String selectedMenuS = "";
     private String baseURI;
-    private final String formatPattertTime = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
+    private static final String formatPattertTime = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
     public RestJFrame() throws HeadlessException {
         super("Salesforce REST requests");
         initComponents();
@@ -170,10 +170,7 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
                 postAccount = new PostAccount(this.baseURI);
                 postAccount.addListener(this);
                 accT = new Thread(postAccount);
-                long yourmilliseconds = System.currentTimeMillis();
-                SimpleDateFormat sdf = new SimpleDateFormat(formatPattertTime);
-                Date resultdate = new Date(yourmilliseconds);
-                System.out.println("Thread starts: " + sdf.format(resultdate));
+                outputMsg("Thread post account starts");
                 accT.start();
             }
             if( e.getActionCommand().equals("GET")) {
@@ -181,6 +178,7 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
                 getAccount.setName("Account");
                 getAccount.addListener(this);
                 accT = new Thread(getAccount);
+                outputMsg("Thread get account starts");
                 accT.start();
             }
         }
@@ -193,6 +191,7 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
                     getContact.addListener(this);
                     contactT = new Thread(getContact);
                     //contactT.setPriority(Thread.MIN_PRIORITY);
+                    outputMsg("Thread get contact starts");
                     contactT.start();
                 }
             }
@@ -247,6 +246,7 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
     public void notifyOfThreadComplete(Thread notifyingThread) {
         String currentThreadClassName = notifyingThread.getClass().getSimpleName();
         if(currentThreadClassName.equals("GetAccount")) {
+            outputMsg("Thread ger account ends");
             GetAccount gA = (GetAccount) notifyingThread;
             accountsM = gA.getAccountsM();
             gA.removeListener(this);
@@ -260,15 +260,19 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
             }
         }
         if(currentThreadClassName.equals("PostAccount")) {
-            long yourmilliseconds = System.currentTimeMillis();
-            SimpleDateFormat sdf = new SimpleDateFormat(formatPattertTime);
-            Date resultdate = new Date(yourmilliseconds);
-            System.out.println("Thread ends: " + sdf.format(resultdate));
+            outputMsg("Thread post account ends");
         }
         else if(currentThreadClassName.equals("GetContact")) {
+            outputMsg("Thread get contact ends");
             GetContact gC = (GetContact)notifyingThread;
             addContactTable(gC.getObj(), gC.getAccountName());
             gC.removeListener(this);
         }
+    }
+    private static void outputMsg(String msg) {
+        long yourmilliseconds = System.currentTimeMillis();
+        SimpleDateFormat sdf = new SimpleDateFormat(formatPattertTime);
+        Date resultdate = new Date(yourmilliseconds);
+        System.out.println(msg + ": " + sdf.format(resultdate));
     }
 }

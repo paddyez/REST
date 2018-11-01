@@ -1,5 +1,6 @@
 package org.paddy.gui;
 import org.paddy.rest.*;
+import org.paddy.utils.ConsoleColors;
 import org.springframework.boot.json.BasicJsonParser;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.util.Assert;
@@ -207,11 +208,9 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
         }
     }
     public void menuSelected(MenuEvent e) {
-        //System.out.println("menuSelected: " + getMenuText(e));
         selectedMenuS = getMenuText(e);
     }
     public void menuDeselected(MenuEvent e) {
-        //System.out.println("menuDeselected: " + getMenuText(e));
     }
     public void menuCanceled(MenuEvent e) {
         System.out.println("menuCanceled: " + getMenuText(e));
@@ -221,7 +220,6 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
         return m.getText();
     }
     public void windowClosing(WindowEvent e) {
-        //System.out.println("windowClosing");
         this.dispose();
         System.exit(0);
     }
@@ -229,7 +227,6 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
         System.out.println("windowDeactivated");
     }
     public void windowActivated(WindowEvent e) {
-        //System.out.println("windowActivated");
     }
     public void windowDeiconified(WindowEvent e) {
         System.out.println("windowDeiconified");
@@ -241,13 +238,12 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
         System.out.println("windowClosed");
     }
     public void windowOpened(WindowEvent e) {
-        //System.out.println("windowOpened");
     }
     public void notifyOfThreadComplete(Thread notifyingThread) {
         String currentThreadClassName = notifyingThread.getClass().getSimpleName();
         if(currentThreadClassName.equals("GetAccount")) {
             outputMsg("Thread ger account ends");
-            GetAccount gA = (GetAccount) notifyingThread;
+            GetAccount gA = (GetAccount)notifyingThread;
             accountsM = gA.getAccountsM();
             gA.removeListener(this);
             JMenu m = menuBar.getMenu(3);
@@ -260,7 +256,9 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
             }
         }
         if(currentThreadClassName.equals("PostAccount")) {
+            PostAccount pA = (PostAccount)notifyingThread;
             outputMsg("Thread post account ends");
+            pA.removeListener(this);
         }
         else if(currentThreadClassName.equals("GetContact")) {
             outputMsg("Thread get contact ends");

@@ -23,7 +23,7 @@ public class Account extends sfObject {
     }
     public String getJSON() {
         String toString = "";
-        toString += "{\"attributes\":{\"type\":\"Account\"},\"Name\":\"" + getName() + "\"}";
+        toString += "{\"attributes\":{\"type\":\"Account\"},\"Name\":\"" + getName() + "\",\"ShippingStreet\":\"Willy-Brandt-Platz 1-3\",\"ShippingStreet\":\"Willy-Brandt-Platz 1-3\",\"ShippingState\":\"\",\"ShippingPostalCode\":\"68161\",\"ShippingLongitude\":\"\",\"ShippingLatitude\":\"\",\"ShippingGeocodeAccuracy\":\"\",\"ShippingCountry\":\"Deutschland\",\"ShippingCity\":\"Mannheim\"}";
         return toString;
     }
     @Override

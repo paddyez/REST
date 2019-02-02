@@ -1,4 +1,4 @@
-package org.paddy.rest;
+package org.paddy.utils;
 public interface ThreadCompleteListener {
     void notifyOfThreadComplete(final Thread thread);
 }

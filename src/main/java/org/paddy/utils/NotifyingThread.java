@@ -1,4 +1,6 @@
-package org.paddy.rest;
+package org.paddy.utils;
+import org.paddy.utils.ThreadCompleteListener;
+
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 public abstract class NotifyingThread extends Thread {

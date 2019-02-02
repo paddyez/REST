@@ -1,6 +1,7 @@
 package org.paddy.rest;
 import org.paddy.sfObjects.Account;
 import org.paddy.sfObjects.Contact;
+import org.paddy.utils.NotifyingThread;
 import org.springframework.web.client.RestTemplate;
 public class GetContact extends NotifyingThread {
     private Object[][] obj = null;

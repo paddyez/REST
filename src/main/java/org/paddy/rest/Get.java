@@ -13,7 +13,6 @@ public class Get {
         RestTemplate restTemplate = new RestTemplate();
         result = restTemplate.getForObject(requestURI, String.class);
         System.out.println(result);
-
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Arrays.asList(new MediaType[] { MediaType.APPLICATION_JSON }));
         headers.setContentType(MediaType.APPLICATION_JSON);

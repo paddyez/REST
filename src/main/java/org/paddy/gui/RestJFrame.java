@@ -1,22 +1,18 @@
 package org.paddy.gui;
 import org.paddy.rest.*;
 import org.paddy.utils.ConsoleColors;
-import org.springframework.boot.json.BasicJsonParser;
-import org.springframework.boot.json.JsonParser;
-import org.springframework.util.Assert;
+import org.paddy.utils.ThreadCompleteListener;
 
 import javax.swing.*;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import static java.awt.SystemColor.desktop;
@@ -32,12 +28,12 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
     private static final String[] columnNames = {"Id", "Salutation", "Title", "Last Name", "First Name", "Email", "Phone", "Mobile"};
     private Thread accT, contactT;
     private String selectedMenuS = "";
-    private String baseURI;
+    Map<String, String> configMap;
     private static final String formatPattertTime = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
-    public RestJFrame() throws HeadlessException {
+    public RestJFrame(Map<String, String> configMap) throws HeadlessException {
         super("Salesforce REST requests");
+        this.configMap = configMap;
         initComponents();
-        readConfigFile();
         addWindowListener(this);
     }
     private void initComponents() {
@@ -59,32 +55,6 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
         this.pack();
         this.setVisible(true);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    }
-    private void readConfigFile() {
-        Map<String, Object> jsonMap;
-        InputStream inputStream;
-        InputStreamReader inputStreamReader;
-        BufferedReader reader;
-        StringBuilder stringBuilder = new StringBuilder();
-        String line, configJSON;
-        inputStream = this.getClass().getResourceAsStream("../../../../resources/config.json");
-        Assert.notNull(inputStream, "Input stream is null! Check path?!");
-        inputStreamReader = new InputStreamReader(inputStream);
-        reader = new BufferedReader(inputStreamReader);
-        try {
-            while ((line = reader.readLine()) != null) {
-                stringBuilder.append(line);
-            }
-            reader.close();
-        }
-        catch (IOException ioe) {
-            System.err.println(ioe);
-        }
-        configJSON  = stringBuilder.toString();
-        JsonParser jsonParser = new BasicJsonParser();
-        jsonMap = jsonParser.parseMap(configJSON);
-        this.baseURI = (String)jsonMap.get("baseURI");
-        System.out.println(this.baseURI);
     }
     private void createMenu() {
         menuBar = new JMenuBar();
@@ -131,6 +101,10 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
             String title = accountName + ": " + data.length + " entries";
             InternalFrame internalFrame = new InternalFrame(title, true, true, true, true, new Dimension(this.getWidth()/2, this.getHeight()/2));
             JTable table = new JTable(data, columnNames);
+            PersonDataCellRenderer pDCR = new PersonDataCellRenderer();
+            TableColumnModel tCM = table.getColumnModel();
+            TableColumn tC = tCM.getColumn(5);
+            tC.setCellRenderer(pDCR);
             JScrollPane scrollPane = new JScrollPane(table);
             table.setFillsViewportHeight(true);
             internalFrame.add(scrollPane);
@@ -168,14 +142,14 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
         else if(selectedMenuS.equals("Accounts")) {
             System.out.println("Action command: " + e.getActionCommand());
             if (e.getActionCommand().equals("POST")) {
-                postAccount = new PostAccount(this.baseURI);
+                postAccount = new PostAccount(configMap.get("baseURI"));
                 postAccount.addListener(this);
                 accT = new Thread(postAccount);
                 outputMsg("Thread post account starts");
                 accT.start();
             }
             if( e.getActionCommand().equals("GET")) {
-                getAccount = new GetAccount(this.baseURI);
+                getAccount = new GetAccount(configMap.get("baseURI"));
                 getAccount.setName("Account");
                 getAccount.addListener(this);
                 accT = new Thread(getAccount);
@@ -187,7 +161,7 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
             if( e.getActionCommand().equals("GET")) {
                 GetContact getContact;
                 for (String accountId : accountsM.keySet()) {
-                    getContact = new GetContact(this.baseURI, accountId, accountsM.get(accountId));
+                    getContact = new GetContact(configMap.get("baseURI"), accountId, accountsM.get(accountId));
                     getContact.setName("Contacts for Account: " + accountId);
                     getContact.addListener(this);
                     contactT = new Thread(getContact);

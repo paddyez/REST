@@ -2,7 +2,7 @@ package org.paddy.sfObjects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class sfObject implements Object {
+public class sfObject implements sfObjectI {
     @JsonProperty("attributes")
     private Attributes attributes;
     @JsonProperty("Name")

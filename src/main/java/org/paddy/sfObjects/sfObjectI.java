@@ -1,6 +1,6 @@
 package org.paddy.sfObjects;
 
-public interface Object {
+public interface sfObjectI {
     Attributes getAttributes();
 
     String getId();

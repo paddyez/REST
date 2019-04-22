@@ -1,7 +1,9 @@
 package org.paddy.utils;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+
 public class ResponseStatusCodes {
     private static final int GET_200 = 200;
     private static final int PATCH_200 = 200;
@@ -20,6 +22,7 @@ public class ResponseStatusCodes {
     private static final int DELETE_GET_PATCH_POST_PUT_500 = 500;
     private static final HashMap<String, String> responseStatusCodesDesc = new HashMap<>();
     private static final HashMap<String, Integer> responseStatusCodes = new HashMap<>();
+
     static {
         responseStatusCodesDesc.put("GET_200", "The request was successful.");
         responseStatusCodesDesc.put("PATCH_200", "The request was successful and the return type is non-void.");
@@ -52,18 +55,20 @@ public class ResponseStatusCodes {
         responseStatusCodes.put("DELETE_GET_PATCH_POST_PUT_415_CONTENT_HEADER_NOT_SUPPORTED", DELETE_GET_PATCH_POST_PUT_415_CONTENT_HEADER_NOT_SUPPORTED);
         responseStatusCodes.put("DELETE_GET_PATCH_POST_PUT_500", DELETE_GET_PATCH_POST_PUT_500);
     }
+
     public static String getPossibleCause(String restMethod, int code) {
         Set<String> possibleKeysS = getPossibleKeys(restMethod, code);
         String possibleCause = "";
-        for(String key : possibleKeysS) {
+        for (String key : possibleKeysS) {
             possibleCause += responseStatusCodesDesc.get(key) + "\n";
         }
         return possibleCause.trim();
     }
+
     private static Set<String> getPossibleKeys(String restMethod, int code) {
         Set<String> possibleKeysS = new HashSet<>();
-        for(String key : responseStatusCodes.keySet()) {
-            if(responseStatusCodes.get(key).intValue() == code && key.contains(restMethod)) {
+        for (String key : responseStatusCodes.keySet()) {
+            if (responseStatusCodes.get(key).intValue() == code && key.contains(restMethod)) {
                 possibleKeysS.add(key);
             }
         }

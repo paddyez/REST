@@ -1,5 +1,7 @@
 package org.paddy.sfObjects;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Address {
     @JsonProperty("city")
     private String city;
@@ -17,23 +19,50 @@ public class Address {
     private String state;
     @JsonProperty("street")
     private String street;
-    public String getCity() { return city; }
-    public String getCountry() { return country; }
-    public String getGeocodeAccuracy() { return geocodeAccuracy; }
-    public String getLatitude() { return latitude; }
-    public String getLongitude() { return longitude; }
-    public String getPostalCode() { return postalCode; }
-    public String getState() { return state; }
-    public String getStreet() { return street; }
-    public Address() {}
+
+    public String getCity() {
+        return city;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public String getGeocodeAccuracy() {
+        return geocodeAccuracy;
+    }
+
+    public String getLatitude() {
+        return latitude;
+    }
+
+    public String getLongitude() {
+        return longitude;
+    }
+
+    public String getPostalCode() {
+        return postalCode;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public String getStreet() {
+        return street;
+    }
+
+    public Address() {
+    }
+
     public Address(String city,
-                           String country,
-                           String geocodeAccuracy,
-                           String latitude,
-                           String longitude,
-                           String postalCode,
-                           String state,
-                           String street) {
+                   String country,
+                   String geocodeAccuracy,
+                   String latitude,
+                   String longitude,
+                   String postalCode,
+                   String state,
+                   String street) {
         this.city = city;
         this.country = country;
         this.geocodeAccuracy = geocodeAccuracy;
@@ -43,6 +72,7 @@ public class Address {
         this.state = state;
         this.street = street;
     }
+
     @Override
     public String toString() {
         String toString = "";

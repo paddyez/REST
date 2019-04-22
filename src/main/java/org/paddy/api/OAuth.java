@@ -1,12 +1,18 @@
 package org.paddy.api;
+
 import org.springframework.boot.json.BasicJsonParser;
 import org.springframework.boot.json.JsonParser;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
+
 public class OAuth {
     private HttpURLConnection connection;
     private Map<String, String> configMap;
@@ -14,11 +20,13 @@ public class OAuth {
     private final String charset = StandardCharsets.UTF_8.name();
     private final String oauthServices = "/services/oauth2/";
     private String credentials;
-    private  String bearer;
+    private String bearer;
+
     public OAuth(Map<String, String> configMap) {
         this.configMap = configMap;
     }
-    public void login () {
+
+    public void login() {
         String response;
         connect();
         if (connection == null) throw new AssertionError();
@@ -27,15 +35,15 @@ public class OAuth {
             connection.connect();
             //printHeader();
             response = response();
-            if(response != null) {
+            if (response != null) {
                 setBearer(response);
             }
-        }
-        catch (IOException ioe) {
+        } catch (IOException ioe) {
             System.err.println("### " + ioe);
         }
         //System.out.println(bearer);
     }
+
     private void connect() {
         /* TODO if other than login */
         String lengthS = String.valueOf(loginCredentials().length());
@@ -54,19 +62,20 @@ public class OAuth {
             //connection.addRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             //connection.addRequestProperty( "Accept", "*/*" );
             //connection.addRequestProperty( "Accept-Encoding", "gzip, deflate, compress" );
-        }
-        catch (IOException ioe) {
+        } catch (IOException ioe) {
             System.err.println("### " + ioe);
         }
     }
+
     private String loginCredentials() {
         String credentials = "grant_type=password";
         credentials += "&username=" + configMap.get("username");
-        credentials += "&password=" + configMap.get("password")+configMap.get("security_token");
+        credentials += "&password=" + configMap.get("password") + configMap.get("security_token");
         credentials += "&client_id=" + configMap.get("client_id");
         credentials += "&client_secret=" + configMap.get("client_secret");
         return credentials;
     }
+
     private void printToOut() {
         /* TODO print other than login */
         credentials = loginCredentials();
@@ -74,11 +83,11 @@ public class OAuth {
             PrintStream printStream = new PrintStream(connection.getOutputStream());
             printStream.print(credentials);
             printStream.close();
-        }
-        catch (IOException ioe) {
+        } catch (IOException ioe) {
             System.err.println("### " + ioe);
         }
     }
+
     private String response() {
         String response = null;
         try {
@@ -96,12 +105,12 @@ public class OAuth {
             }
             bufferedReader.close();
             response = stringWriter.toString();
-        }
-        catch (IOException ioe) {
+        } catch (IOException ioe) {
             System.err.println("### " + ioe);
         }
         return response;
     }
+
     private void setBearer(String response) {
         JsonParser jsonParser = new BasicJsonParser();
         Map jsonMap = jsonParser.parseMap(response);
@@ -111,9 +120,10 @@ public class OAuth {
             }
         });
     }
+
     private void printHeader() {
         System.out.println("----");
-        connection.getHeaderFields().forEach((key,  values) -> {
+        connection.getHeaderFields().forEach((key, values) -> {
             System.out.print(key + ": ");
             String joined = values.stream().collect(Collectors.joining("|"));
             System.out.println(joined);

@@ -1,4 +1,5 @@
 package org.paddy.utils;
+
 public abstract class ConsoleColors {
     public static final String RESET = "\033[0m";
     public static final String BLACK = "\033[0;30m";

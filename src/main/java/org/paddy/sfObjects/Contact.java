@@ -1,6 +1,8 @@
 package org.paddy.sfObjects;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
-public class Contact  extends sfObject {
+
+public class Contact extends sfObject {
     @JsonProperty("MailinngAddress")
     private Address mailingAddress;
     @JsonProperty("Email")
@@ -17,18 +19,46 @@ public class Contact  extends sfObject {
     private String salutation;
     @JsonProperty("Title")
     private String title;
-    public Address getMailingAddress() { return mailingAddress; }
-    public String getEmail() { return email; }
-    public String getFirstName() { return firstName; }
-    public String getLastName() { return lastName; }
-    public String getMobilePhone() { return mobilePhone; }
-    public String getPhone() { return phone; }
-    public String getSalutation() { return salutation; }
-    public String getTitle() { return title; }
+
+    public Address getMailingAddress() {
+        return mailingAddress;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getMobilePhone() {
+        return mobilePhone;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public String getSalutation() {
+        return salutation;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
     public java.lang.Object[] getRow() {
         return new java.lang.Object[]{getId(), salutation, title, lastName, firstName, email, phone, mobilePhone};
     }
-    public Contact() {}
+
+    public Contact() {
+    }
+
     public Contact(Address mailingAddress,
                    Attributes attributes,
                    String email,
@@ -52,6 +82,7 @@ public class Contact  extends sfObject {
         this.salutation = salutation;
         this.title = title;
     }
+
     @Override
     public String toString() {
         String type = getAttributes().getType();

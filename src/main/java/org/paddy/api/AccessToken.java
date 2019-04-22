@@ -1,4 +1,5 @@
 package org.paddy.api;
+
 public class AccessToken {
     public String access_token;
     public String refresh_token;

@@ -1,15 +1,24 @@
 package org.paddy.sfObjects;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Account extends sfObject {
     @JsonProperty("Contacts")
     private Contacts contacts;
     @JsonProperty("ShippingAddress")
     private Address shippingAddress;
-    public Contacts getContacts() {return contacts;}
-    public Account() {}
+
+    public Contacts getContacts() {
+        return contacts;
+    }
+
+    public Account() {
+    }
+
     public Account(String name) {
         setName(name);
     }
+
     public Account(Address shippingAddress,
                    Attributes attributes,
                    Contacts contacts,
@@ -21,11 +30,13 @@ public class Account extends sfObject {
         setId(id);
         setName(name);
     }
+
     public String getJSON() {
         String toString = "";
         toString += "{\"attributes\":{\"type\":\"Account\"},\"Name\":\"" + getName() + "\",\"ShippingStreet\":\"Willy-Brandt-Platz 1-3\",\"ShippingStreet\":\"Willy-Brandt-Platz 1-3\",\"ShippingState\":\"\",\"ShippingPostalCode\":\"68161\",\"ShippingLongitude\":\"\",\"ShippingLatitude\":\"\",\"ShippingGeocodeAccuracy\":\"\",\"ShippingCountry\":\"Deutschland\",\"ShippingCity\":\"Mannheim\"}";
         return toString;
     }
+
     @Override
     public String toString() {
         String type = getAttributes().getType();
@@ -34,11 +45,11 @@ public class Account extends sfObject {
         toString += "Id: " + getId() + " Name: " + getName() + "\n";
         toString += "totalSize: " + getContacts().getTotalSize() + "\n";
         toString += "done: " + getContacts().getDone() + "\n";
-        if(shippingAddress != null) {
+        if (shippingAddress != null) {
             toString += shippingAddress;
         }
         toString += "\n=== Contacts ===\n\n";
-        for(Contact contact : getContacts().getContacts()) {
+        for (Contact contact : getContacts().getContacts()) {
             toString += contact + "\n";
         }
         return toString;

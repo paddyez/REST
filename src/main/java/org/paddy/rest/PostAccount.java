@@ -1,30 +1,36 @@
 package org.paddy.rest;
-import org.paddy.utils.ConsoleColors;
+
 import org.paddy.sfObjects.Account;
+import org.paddy.utils.ConsoleColors;
 import org.paddy.utils.NotifyingThread;
 import org.paddy.utils.ResponseStatusCodes;
 import org.springframework.http.*;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
+
 import java.util.LinkedHashSet;
 import java.util.Set;
+
 public class PostAccount extends NotifyingThread {
     String baseURI;
+
     public PostAccount(String baseURI) {
         this.baseURI = baseURI;
     }
+
     void insertAccount() {
-        Account a  = new Account("TestAccount");
+        Account a = new Account("TestAccount");
     }
+
     void insertAccounts() {
         Set<String> accountsS = new LinkedHashSet<>();
         Account a;
-        for(int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 1000; i++) {
             a = new Account("TestAccount Tester" + i);
             accountsS.add(a.getJSON());
         }
         String newAccounts = "{\"sObjects\":[";
-        newAccounts += String.join(",",accountsS);
+        newAccounts += String.join(",", accountsS);
         newAccounts += "],\"info\":\"Useless information\"}";
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
@@ -41,12 +47,12 @@ public class PostAccount extends NotifyingThread {
             } else {
                 System.err.println("Failed to create Accounts server status code: " + statusi + "\n" + response);
             }
-        }
-        catch (HttpServerErrorException hsee) {
+        } catch (HttpServerErrorException hsee) {
             int code = Integer.valueOf(hsee.getMessage().substring(0, 3)).intValue();
             System.err.println(hsee.getMessage() + ":\n" + ResponseStatusCodes.getPossibleCause("POST", code));
         }
     }
+
     private String getResponse(ResponseEntity<String> result) {
         String resultBody = result.getBody();
         HttpHeaders httpHeaders = result.getHeaders();
@@ -58,7 +64,8 @@ public class PostAccount extends NotifyingThread {
         resultHeadersS = String.join("\n", headersS);
         return "Headers:\n" + ConsoleColors.BLUE + resultHeadersS + ConsoleColors.WHITE + "\nBody:\n" + resultBody;
     }
-    public void doRun(){
+
+    public void doRun() {
         insertAccounts();
     }
 }

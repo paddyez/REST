@@ -2,6 +2,7 @@ package org.paddy.utils;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class ResponseStatusCodes {
@@ -67,9 +68,9 @@ public class ResponseStatusCodes {
 
     private static Set<String> getPossibleKeys(String restMethod, int code) {
         Set<String> possibleKeysS = new HashSet<>();
-        for (String key : responseStatusCodes.keySet()) {
-            if (responseStatusCodes.get(key).intValue() == code && key.contains(restMethod)) {
-                possibleKeysS.add(key);
+        for (Map.Entry<String, Integer> entry: responseStatusCodes.entrySet()) {
+            if (entry.getValue().intValue()  == code && entry.getKey().contains(restMethod)) {
+                possibleKeysS.add(entry.getKey());
             }
         }
         return possibleKeysS;

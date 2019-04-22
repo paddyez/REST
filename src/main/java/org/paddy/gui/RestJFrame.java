@@ -29,12 +29,15 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
     private GetAccount getAccount;
     private PostAccount postAccount;
     private Map<String, String> accountsM;
+    Map<String, String> configMap;
     private final Set<String> restCommandsS = new LinkedHashSet<>(Arrays.asList("DELETE", "GET", "PATCH", "POST", "PUT"));
     private static final String[] columnNames = {"Id", "Salutation", "Title", "Last Name", "First Name", "Email", "Phone", "Mobile"};
     private Thread accT, contactT;
     private String selectedMenuS = "";
-    Map<String, String> configMap;
     private static final String YYYY_MM_DD_T_HH_MM_SS_SSSXXX = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
+    private static final String ACCOUNTS = "Accounts";
+    private static final String ACTION_COMMAND = "Action command: ";
+    private static final String CLOSE_ALL = "Close all";
 
     public RestJFrame(Map<String, String> configMap) throws HeadlessException {
         super("Salesforce REST requests");
@@ -67,13 +70,13 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
     private void createMenu() {
         mainMenuBar = new JMenuBar();
         Set<String> itemsS;
-        Set<String> menusS = new LinkedHashSet<>(Arrays.asList("File", "Edit", "Accounts", "Contacts", "Opportunities"));
+        Set<String> menusS = new LinkedHashSet<>(Arrays.asList("File", "Edit", ACCOUNTS, "Contacts", "Opportunities"));
         int i = 0;
         for (String menu : menusS) {
             menus = new JMenu(menu);
             switch (i) {
                 case 0:
-                    itemsS = new LinkedHashSet<>(Arrays.asList("Open", "New", "Close", "Close All", "Exit"));
+                    itemsS = new LinkedHashSet<>(Arrays.asList("Open", "New", "Close", CLOSE_ALL, "Exit"));
                     break;
                 case 1:
                     itemsS = new HashSet<>();
@@ -85,10 +88,10 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
             for (String entry : itemsS) {
                 menuItems = new JMenuItem(entry);
                 menuItems.addActionListener(this);
-                if (entry.equals("POST") && menu.equals("Accounts")) {
+                if (entry.equals("POST") && menu.equals(ACCOUNTS)) {
                     // POST
                     System.out.println("TODO: POST Accounts needs to be implemented");
-                } else if (entry.equals("GET") && menu.equals("Accounts")) {
+                } else if (entry.equals("GET") && menu.equals(ACCOUNTS)) {
                     // GET
                     System.out.println("TODO: GET Accounts needs to be implemented");
                 } else {
@@ -125,7 +128,7 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
             if (InternalFrame.getOpenFrameCount() == 1) {
                 JMenu m = mainMenuBar.getMenu(0);
                 for (int i = 0; i < m.getItemCount(); i++) {
-                    if (m.getItem(i).getText().equals("Close All")) {
+                    if (m.getItem(i).getText().equals(CLOSE_ALL)) {
                         m.getItem(i).setEnabled(true);
                     }
                 }
@@ -134,8 +137,9 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
     }
 
     public void actionPerformed(ActionEvent e) {
+        final String BASE_URI = "baseURI";
         if (selectedMenuS.equals("File")) {
-            if (e.getActionCommand().equals("Close All")) {
+            if (e.getActionCommand().equals(CLOSE_ALL)) {
                 for (JInternalFrame internalFrame : desktopP.getAllFrames()) {
                     desktopP.remove(internalFrame);
                     internalFrame.dispose();
@@ -144,25 +148,25 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
                 repaint();
                 JMenu m = mainMenuBar.getMenu(0);
                 for (int i = 0; i < m.getItemCount(); i++) {
-                    if (m.getItem(i).getText().equals("Close All")) {
+                    if (m.getItem(i).getText().equals(CLOSE_ALL)) {
                         m.getItem(i).setEnabled(false);
                     }
                 }
             }
         }
         if (selectedMenuS.equals("Edit")) {
-            System.out.println("Action command: " + e.getActionCommand());
-        } else if (selectedMenuS.equals("Accounts")) {
-            System.out.println("Action command: " + e.getActionCommand());
+            System.out.println(ACTION_COMMAND + e.getActionCommand());
+        } else if (selectedMenuS.equals(ACCOUNTS)) {
+            System.out.println(ACTION_COMMAND + e.getActionCommand());
             if (e.getActionCommand().equals("POST")) {
-                postAccount = new PostAccount(configMap.get("baseURI"));
+                postAccount = new PostAccount(configMap.get(BASE_URI));
                 postAccount.addListener(this);
                 accT = new Thread(postAccount);
                 outputMsg("Thread post account starts");
                 accT.start();
             }
             if (e.getActionCommand().equals("GET")) {
-                getAccount = new GetAccount(configMap.get("baseURI"));
+                getAccount = new GetAccount(configMap.get(BASE_URI));
                 getAccount.setName("Account");
                 getAccount.addListener(this);
                 accT = new Thread(getAccount);
@@ -173,7 +177,7 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
             if (e.getActionCommand().equals("GET")) {
                 GetContact getContact;
                 for (String accountId : accountsM.keySet()) {
-                    getContact = new GetContact(configMap.get("baseURI"), accountId, accountsM.get(accountId));
+                    getContact = new GetContact(configMap.get(BASE_URI), accountId, accountsM.get(accountId));
                     getContact.setName("Contacts for Account: " + accountId);
                     getContact.addListener(this);
                     contactT = new Thread(getContact);
@@ -183,7 +187,7 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
                 }
             }
         } else if (e.getActionCommand().equals("Opportunities")) {
-            System.out.println("Action command: " + e.getActionCommand());
+            System.out.println(ACTION_COMMAND + e.getActionCommand());
             if (e.getActionCommand().equals("GET")) {
                 System.out.println("Getting: " + e.getActionCommand());
             }

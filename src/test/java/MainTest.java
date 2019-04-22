@@ -1,4 +1,7 @@
 import org.junit.Test;
+
+import java.net.URL;
+
 import static org.junit.Assert.*;
 public class MainTest {
     /** config.json looks like this
@@ -18,11 +21,13 @@ public class MainTest {
      */
     @Test
     public void testMain() {
-        String resourceName = Main.class.getResource("../resources/config.json").getFile();
-        String[] results = AbstractMainTests.executeMain("Main", new String[]{"-f", resourceName});
-        int i = 0;
-        for (String res: results) {
+        URL url = Main.class.getResource("../resources/config.json");
+        if(url != null) {
+            String resourceName = url.getFile();
+            String[] results = AbstractMainTests.executeMain("Main", new String[]{"-f", resourceName});
+            for (String res : results) {
                 assertEquals("", res);
+            }
         }
     }
 }

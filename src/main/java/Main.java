@@ -23,15 +23,15 @@ public class Main {
         jsonMap.forEach((k, v) -> configMap.put(k, (String) v));
         //configMap.entrySet().stream().forEach(e -> System.out.println(e.getKey() + ": " + e.getValue()));
         //SwingUtilities.invokeLater(RestJFrame::new);
+        /*
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
                 new RestJFrame(configMap);
             }
         });
-        /*
-        SwingUtilities.invokeLater(() -> new RestJFrame(configMap));
         */
+        SwingUtilities.invokeLater(() -> new RestJFrame(configMap));
         OAuth oAuth = new OAuth(configMap);
         oAuth.login();
     }
@@ -39,27 +39,38 @@ public class Main {
     private static Map<String, Object> configFromFile(String rewsourceName) {
         Map<String, Object> jsonMap;
         InputStream inputStream = Main.class.getResourceAsStream("../resources/config.json");
-        InputStreamReader inputStreamReader;
-        BufferedReader reader;
+        InputStreamReader inputStreamReader = null;
+        BufferedReader reader = null;
         StringBuilder stringBuilder = new StringBuilder();
         String line, configJSON;
         if (rewsourceName != null) {
             try {
                 inputStream = new FileInputStream(rewsourceName);
             } catch (FileNotFoundException fnfe) {
-                System.err.println("### " + fnfe);
+                System.err.println("File can not be found => " + fnfe);
             }
         }
         Assert.notNull(inputStream, "Input stream is null! Check path?!");
-        inputStreamReader = new InputStreamReader(inputStream);
-        reader = new BufferedReader(inputStreamReader);
         try {
+            inputStreamReader = new InputStreamReader(inputStream);
+            reader = new BufferedReader(inputStreamReader);
             while ((line = reader.readLine()) != null) {
                 stringBuilder.append(line);
             }
-            reader.close();
         } catch (IOException ioe) {
-            System.err.println(ioe);
+            System.err.println("Buffered reader can not be invoked => " + ioe);
+        } finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+                if (inputStreamReader != null) {
+                    inputStreamReader.close();
+                }
+            } catch (IOException ioe) {
+                System.err.println("Can not close Buffered reader => " + ioe);
+            }
+
         }
         configJSON = stringBuilder.toString();
         JsonParser jsonParser = new BasicJsonParser();

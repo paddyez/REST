@@ -7,19 +7,14 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class OAuth {
     private HttpURLConnection connection;
     private Map<String, String> configMap;
-    private final Set<String> servicesS = new HashSet<>(Arrays.asList("authorize", "token", "revoke"));
+    //private static final Set<String> servicesS = new HashSet<>(Arrays.asList("authorize", "token", "revoke"));
     private final String charset = StandardCharsets.UTF_8.name();
-    private final String oauthServices = "/services/oauth2/";
-    private String credentials;
+    private static final String oauthServices = "/services/oauth2/";
     private String bearer;
 
     public OAuth(Map<String, String> configMap) {
@@ -33,7 +28,7 @@ public class OAuth {
         try {
             printToOut();
             connection.connect();
-            //printHeader();
+            printHeader();
             response = response();
             if (response != null) {
                 setBearer(response);
@@ -41,7 +36,7 @@ public class OAuth {
         } catch (IOException ioe) {
             System.err.println("### " + ioe);
         }
-        //System.out.println(bearer);
+        System.out.println(bearer);
     }
 
     private void connect() {
@@ -68,17 +63,21 @@ public class OAuth {
     }
 
     private String loginCredentials() {
-        String credentials = "grant_type=password";
-        credentials += "&username=" + configMap.get("username");
-        credentials += "&password=" + configMap.get("password") + configMap.get("security_token");
-        credentials += "&client_id=" + configMap.get("client_id");
-        credentials += "&client_secret=" + configMap.get("client_secret");
-        return credentials;
+        return "grant_type=password" +
+                "&username=" +
+                configMap.get("username") +
+                "&password=" +
+                configMap.get("password") +
+                configMap.get("security_token") +
+                "&client_id=" +
+                configMap.get("client_id") +
+                "&client_secret=" +
+                configMap.get("client_secret");
     }
 
     private void printToOut() {
         /* TODO print other than login */
-        credentials = loginCredentials();
+        String credentials = loginCredentials();
         try {
             PrintStream printStream = new PrintStream(connection.getOutputStream());
             printStream.print(credentials);
@@ -113,19 +112,21 @@ public class OAuth {
 
     private void setBearer(String response) {
         JsonParser jsonParser = new BasicJsonParser();
-        Map jsonMap = jsonParser.parseMap(response);
-        jsonMap.forEach((k, v) -> {
-            if (k.equals("access_token")) {
-                bearer = String.valueOf(v);
-            }
-        });
+        Map<String, Object> jsonMap = jsonParser.parseMap(response);
+        if (!jsonMap.isEmpty()) {
+            jsonMap.forEach((k, v) -> {
+                if (k.equals("access_token")) {
+                    bearer = String.valueOf(v);
+                }
+            });
+        }
     }
 
     private void printHeader() {
         System.out.println("----");
         connection.getHeaderFields().forEach((key, values) -> {
             System.out.print(key + ": ");
-            String joined = values.stream().collect(Collectors.joining("|"));
+            String joined = String.join("|", values);
             System.out.println(joined);
         });
         System.out.println("----");

@@ -86,9 +86,11 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
                 menuItems = new JMenuItem(entry);
                 menuItems.addActionListener(this);
                 if (entry.equals("POST") && menu.equals("Accounts")) {
-
+                    // POST
+                    System.out.println("TODO: POST Accounts needs to be implemented");
                 } else if (entry.equals("GET") && menu.equals("Accounts")) {
-
+                    // GET
+                    System.out.println("TODO: GET Accounts needs to be implemented");
                 } else {
                     menuItems.setEnabled(false);
                 }

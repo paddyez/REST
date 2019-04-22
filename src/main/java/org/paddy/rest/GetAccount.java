@@ -9,8 +9,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class GetAccount extends NotifyingThread {
-    Map<String, String> accountsM;
-    String baseURI;
+    private Map<String, String> accountsM;
+    private String baseURI;
 
     public Map<String, String> getAccountsM() {
         return accountsM;
@@ -25,9 +25,11 @@ public class GetAccount extends NotifyingThread {
         String requestURI = baseURI + "?sObj=Account&q=all";
         RestTemplate restTemplate = new RestTemplate();
         Account[] accounts = restTemplate.getForObject(requestURI, Account[].class);
-        for (Account acc : accounts) {
-            //System.out.println("Id: " + acc.getId() + " " + acc.getName());
-            accountsM.put(acc.getId(), acc.getName());
+        if (accounts != null && accounts.length > 0) {
+            for (Account acc : accounts) {
+                //System.out.println("Id: " + acc.getId() + " " + acc.getName());
+                accountsM.put(acc.getId(), acc.getName());
+            }
         }
     }
 

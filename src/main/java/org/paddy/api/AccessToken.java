@@ -1,9 +1,9 @@
 package org.paddy.api;
 
 public class AccessToken {
-    public String access_token;
-    public String refresh_token;
-    public long expires_in;
-    public String token_type;
-    public String scope;
+    private String access_token;
+    private String refresh_token;
+    private long expires_in;
+    private String token_type;
+    private String scope;
 }

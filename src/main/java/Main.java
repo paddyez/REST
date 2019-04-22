@@ -4,25 +4,23 @@ import org.springframework.boot.json.BasicJsonParser;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.util.Assert;
 import javax.swing.*;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 public class Main {
     public static void main(String[] args) {
+        Map<String, Object> jsonMap = new HashMap<>();
         Map<String, String> configMap = new HashMap<>();
-        if(args.length > 0) {
-            System.out.println(args[0]);
-            configMap.put("a", "b");
+        if(args.length > 1) {
+            if(args[0].equals("-f")) {
+                jsonMap = configFromFile(args[1]);
+            }
         }
         else {
-            Map<String, Object> jsonMap;
-            jsonMap = configFromFile();
-            jsonMap.forEach((k, v) -> configMap.put(k, (String)v));
-            //configMap.entrySet().stream().forEach(e -> System.out.println(e.getKey() + ": " + e.getValue()));
+            jsonMap = configFromFile(null);
         }
+        jsonMap.forEach((k, v) -> configMap.put(k, (String)v));
+        //configMap.entrySet().stream().forEach(e -> System.out.println(e.getKey() + ": " + e.getValue()));
         //SwingUtilities.invokeLater(RestJFrame::new);
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -34,16 +32,23 @@ public class Main {
         SwingUtilities.invokeLater(() -> new RestJFrame(configMap));
         */
         OAuth oAuth = new OAuth(configMap);
-            oAuth.login();
+        oAuth.login();
     }
-    private static Map<String, Object> configFromFile() {
+    private static Map<String, Object> configFromFile(String rewsourceName) {
         Map<String, Object> jsonMap;
-        InputStream inputStream;
+        InputStream inputStream = Main.class.getResourceAsStream("../resources/config.json");
         InputStreamReader inputStreamReader;
         BufferedReader reader;
         StringBuilder stringBuilder = new StringBuilder();
         String line, configJSON;
-        inputStream = Main.class.getResourceAsStream("../resources/config.json");
+        if(rewsourceName != null) {
+            try {
+                inputStream = new FileInputStream(rewsourceName);
+            }
+            catch (FileNotFoundException fnfe) {
+                System.err.println("### " + fnfe);
+            }
+        }
         Assert.notNull(inputStream, "Input stream is null! Check path?!");
         inputStreamReader = new InputStreamReader(inputStream);
         reader = new BufferedReader(inputStreamReader);

@@ -36,18 +36,21 @@ public class Main {
         oAuth.login();
     }
 
-    private static Map<String, Object> configFromFile(String rewsourceName) {
+    private static Map<String, Object> configFromFile(String resourceName) {
         Map<String, Object> jsonMap;
-        InputStream inputStream = Main.class.getResourceAsStream("../resources/config.json");
+        InputStream inputStream = null;
         InputStreamReader inputStreamReader = null;
         BufferedReader reader = null;
         StringBuilder stringBuilder = new StringBuilder();
-        String line, configJSON;
-        if (rewsourceName != null) {
+        String line;
+        String configJSON;
+        if (resourceName == null) {
+            inputStream = Main.class.getResourceAsStream("../resources/config.json");
+        } else {
             try {
-                inputStream = new FileInputStream(rewsourceName);
+                inputStream = new FileInputStream(resourceName);
             } catch (FileNotFoundException fnfe) {
-                System.err.println("File can not be found => " + fnfe);
+                fnfe.printStackTrace();
             }
         }
         Assert.notNull(inputStream, "Input stream is null! Check path?!");
@@ -67,6 +70,7 @@ public class Main {
                 if (inputStreamReader != null) {
                     inputStreamReader.close();
                 }
+                inputStream.close();
             } catch (IOException ioe) {
                 System.err.println("Can not close Buffered reader => " + ioe);
             }

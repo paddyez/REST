@@ -23,7 +23,7 @@ import static java.awt.SystemColor.desktop;
 
 public class RestJFrame extends JFrame implements ActionListener, MenuListener, WindowListener, ThreadCompleteListener {
     private JDesktopPane desktopP;
-    private JMenuBar menuBar;
+    private JMenuBar mainMenuBar;
     private JMenu menus;
     private JMenuItem menuItems;
     private GetAccount getAccount;
@@ -34,7 +34,7 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
     private Thread accT, contactT;
     private String selectedMenuS = "";
     Map<String, String> configMap;
-    private static final String formatPattertTime = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
+    private static final String YYYY_MM_DD_T_HH_MM_SS_SSSXXX = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
 
     public RestJFrame(Map<String, String> configMap) throws HeadlessException {
         super("Salesforce REST requests");
@@ -65,7 +65,7 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
     }
 
     private void createMenu() {
-        menuBar = new JMenuBar();
+        mainMenuBar = new JMenuBar();
         Set<String> itemsS;
         Set<String> menusS = new LinkedHashSet<>(Arrays.asList("File", "Edit", "Accounts", "Contacts", "Opportunities"));
         int i = 0;
@@ -97,10 +97,10 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
                 menus.add(menuItems);
             }
             menus.addMenuListener(this);
-            menuBar.add(menus);
+            mainMenuBar.add(menus);
             i++;
         }
-        this.setJMenuBar(menuBar);
+        this.setJMenuBar(mainMenuBar);
     }
 
     private void createDesktop() {
@@ -123,7 +123,7 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
             internalFrame.add(scrollPane);
             desktopP.add(internalFrame);
             if (InternalFrame.getOpenFrameCount() == 1) {
-                JMenu m = menuBar.getMenu(0);
+                JMenu m = mainMenuBar.getMenu(0);
                 for (int i = 0; i < m.getItemCount(); i++) {
                     if (m.getItem(i).getText().equals("Close All")) {
                         m.getItem(i).setEnabled(true);
@@ -142,7 +142,7 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
                 }
                 revalidate();
                 repaint();
-                JMenu m = menuBar.getMenu(0);
+                JMenu m = mainMenuBar.getMenu(0);
                 for (int i = 0; i < m.getItemCount(); i++) {
                     if (m.getItem(i).getText().equals("Close All")) {
                         m.getItem(i).setEnabled(false);
@@ -242,7 +242,7 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
             GetAccount gA = (GetAccount) notifyingThread;
             accountsM = gA.getAccountsM();
             gA.removeListener(this);
-            JMenu m = menuBar.getMenu(3);
+            JMenu m = mainMenuBar.getMenu(3);
             JMenuItem item;
             for (int i = 0; i < m.getItemCount(); i++) {
                 item = m.getItem(i);
@@ -265,7 +265,7 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
 
     private static void outputMsg(String msg) {
         long yourmilliseconds = System.currentTimeMillis();
-        SimpleDateFormat sdf = new SimpleDateFormat(formatPattertTime);
+        SimpleDateFormat sdf = new SimpleDateFormat(YYYY_MM_DD_T_HH_MM_SS_SSSXXX);
         Date resultdate = new Date(yourmilliseconds);
         System.out.println(ConsoleColors.YELLOW + msg + ": " + sdf.format(resultdate) + ConsoleColors.WHITE);
     }

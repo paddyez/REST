@@ -14,7 +14,7 @@ public class OAuth {
     private Map<String, String> configMap;
     //private static final Set<String> servicesS = new HashSet<>(Arrays.asList("authorize", "token", "revoke"));
     private final String charset = StandardCharsets.UTF_8.name();
-    private static final String oauthServices = "/services/oauth2/";
+    private static final String SERVICES_OAUTH_2 = "/services/oauth2/";
     private String bearer;
 
     public OAuth(Map<String, String> configMap) {
@@ -43,7 +43,7 @@ public class OAuth {
         /* TODO if other than login */
         String lengthS = String.valueOf(loginCredentials().length());
         try {
-            String uri = "https://" + configMap.get("my_domain") + oauthServices + "token";
+            String uri = "https://" + configMap.get("my_domain") + SERVICES_OAUTH_2 + "token";
             URL url = new URL(uri);
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");

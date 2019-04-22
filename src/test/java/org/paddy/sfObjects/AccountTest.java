@@ -1,3 +1,4 @@
+import org.junit.Assert;
 import org.junit.Test;
 import org.paddy.sfObjects.Account;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -16,5 +17,6 @@ public class AccountTest {
         }
         assertThat(account0.getName(), equalTo(account1.getName()));
         */
+        Assert.assertNotNull(account0);
     }
 }

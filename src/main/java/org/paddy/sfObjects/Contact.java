@@ -3,6 +3,7 @@ package org.paddy.sfObjects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Contact extends sfObject {
+    public static final String SEMICOLON_SEPARATOR = "\";\"";
     @JsonProperty("MailinngAddress")
     private Address mailingAddress;
     @JsonProperty("Email")
@@ -88,7 +89,7 @@ public class Contact extends sfObject {
         String type = getAttributes().getType();
         assert type.equals("Contact");
         String toString;
-        toString = "\"" + getId() + "\";\"" + getName() + "\";\"" + email + "\";\"" + phone + "\"";
+        toString = "\"" + getId() + SEMICOLON_SEPARATOR + getName() + SEMICOLON_SEPARATOR + email + SEMICOLON_SEPARATOR + phone + "\"";
         return toString;
     }
 }

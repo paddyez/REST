@@ -57,6 +57,9 @@ public class ResponseStatusCodes {
         responseStatusCodes.put("DELETE_GET_PATCH_POST_PUT_500", DELETE_GET_PATCH_POST_PUT_500);
     }
 
+    private ResponseStatusCodes() {
+    }
+
     public static String getPossibleCause(String restMethod, int code) {
         Set<String> possibleKeysS = getPossibleKeys(restMethod, code);
         StringBuilder possibleCause = new StringBuilder();

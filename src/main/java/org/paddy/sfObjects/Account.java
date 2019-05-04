@@ -32,26 +32,41 @@ public class Account extends sfObject {
     }
 
     public String getJSON() {
-        String toString = "";
-        toString += "{\"attributes\":{\"type\":\"Account\"},\"Name\":\"" + getName() + "\",\"ShippingStreet\":\"Willy-Brandt-Platz 1-3\",\"ShippingStreet\":\"Willy-Brandt-Platz 1-3\",\"ShippingState\":\"\",\"ShippingPostalCode\":\"68161\",\"ShippingLongitude\":\"\",\"ShippingLatitude\":\"\",\"ShippingGeocodeAccuracy\":\"\",\"ShippingCountry\":\"Deutschland\",\"ShippingCity\":\"Mannheim\"}";
-        return toString;
+        String jsonStr = "{\"attributes\":{\"type\":\"Account\"},\"Name\":\"" +
+                getName() +
+                "\",\"ShippingStreet\":\"Willy-Brandt-Platz 1-3\",\"ShippingStreet\":\"Willy-Brandt-Platz 1-3\",\"ShippingState\":\"\",\"ShippingPostalCode\":\"68161\",\"ShippingLongitude\":\"\",\"ShippingLatitude\":\"\",\"ShippingGeocodeAccuracy\":\"\",\"ShippingCountry\":\"Deutschland\",\"ShippingCity\":\"Mannheim\"}";
+        return jsonStr;
     }
 
     @Override
     public String toString() {
         String type = getAttributes().getType();
         assert type.equals("Account");
-        String toString = "== " + type + " " + getAttributes().getUrl() + " ==\n\n";
-        toString += "Id: " + getId() + " Name: " + getName() + "\n";
-        toString += "totalSize: " + getContacts().getTotalSize() + "\n";
-        toString += "done: " + getContacts().getDone() + "\n";
+        StringBuilder sb = new StringBuilder();
+        sb.append("== ")
+                .append(type)
+                .append(" ")
+                .append(getAttributes().getUrl())
+                .append(" ==\n\n")
+                .append("Id: ")
+                .append(getId())
+                .append(" Name: ")
+                .append(getName())
+                .append("\n")
+                .append("totalSize: ")
+                .append(getContacts().getTotalSize())
+                .append("\n")
+                .append("done: ")
+                .append(getContacts().getDone())
+                .append("\n");
         if (shippingAddress != null) {
-            toString += shippingAddress;
+            sb.append(shippingAddress);
         }
-        toString += "\n=== Contacts ===\n\n";
+        sb.append("\n=== Contacts ===\n\n");
         for (Contact contact : getContacts().getContacts()) {
-            toString += contact + "\n";
+            sb.append(contact);
+            sb.append("\n");
         }
-        return toString;
+        return sb.toString();
     }
 }

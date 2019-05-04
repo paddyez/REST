@@ -1,15 +1,19 @@
 package org.paddy.gui;
 
+import org.apache.log4j.Logger;
+
 import javax.swing.*;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 import java.awt.*;
 
 public class InternalFrame extends JInternalFrame implements InternalFrameListener {
+    private static final Logger log = Logger.getLogger(InternalFrame.class);
     private static int openFrameCount = 0;
-    private static final int X_OFFSET = 30, Y_OFFSET = 30;
+    private static final int X_OFFSET = 30;
+    private static final int Y_OFFSET = 30;
 
-    public static int getOpenFrameCount() {
+    static int getOpenFrameCount() {
         return openFrameCount;
     }
 
@@ -17,7 +21,7 @@ public class InternalFrame extends JInternalFrame implements InternalFrameListen
         openFrameCount--;
     }
 
-    public InternalFrame(String title, boolean resizable, boolean closable, boolean maximizable, boolean iconifiable, Dimension size) {
+    InternalFrame(String title, boolean resizable, boolean closable, boolean maximizable, boolean iconifiable, Dimension size) {
         super(title, resizable, closable, maximizable, iconifiable);
         this.pack();
         this.setVisible(true);
@@ -35,7 +39,7 @@ public class InternalFrame extends JInternalFrame implements InternalFrameListen
     @Override
     public void internalFrameClosing(InternalFrameEvent e) {
         String ftitle = e.getInternalFrame().getTitle();
-        //System.out.println("Closing: " + ftitle);
+        log.info("Closing internal frame: " + ftitle);
     }
 
     @Override

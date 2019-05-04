@@ -59,17 +59,18 @@ public class ResponseStatusCodes {
 
     public static String getPossibleCause(String restMethod, int code) {
         Set<String> possibleKeysS = getPossibleKeys(restMethod, code);
-        String possibleCause = "";
+        StringBuilder possibleCause = new StringBuilder();
         for (String key : possibleKeysS) {
-            possibleCause += responseStatusCodesDesc.get(key) + "\n";
+            possibleCause.append(responseStatusCodesDesc.get(key))
+                    .append("\n");
         }
-        return possibleCause.trim();
+        return possibleCause.toString().trim();
     }
 
     private static Set<String> getPossibleKeys(String restMethod, int code) {
         Set<String> possibleKeysS = new HashSet<>();
         for (Map.Entry<String, Integer> entry: responseStatusCodes.entrySet()) {
-            if (entry.getValue().intValue()  == code && entry.getKey().contains(restMethod)) {
+            if (entry.getValue() == code && entry.getKey().contains(restMethod)) {
                 possibleKeysS.add(entry.getKey());
             }
         }

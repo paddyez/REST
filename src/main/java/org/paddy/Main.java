@@ -1,3 +1,6 @@
+package org.paddy;
+
+import org.apache.log4j.Logger;
 import org.paddy.api.OAuth;
 import org.paddy.gui.RestJFrame;
 import org.springframework.boot.json.BasicJsonParser;
@@ -10,6 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Main {
+    private static final Logger log = Logger.getLogger(Main.class);
+
     public static void main(String[] args) {
         Map<String, Object> jsonMap = new HashMap<>();
         Map<String, String> configMap = new HashMap<>();
@@ -45,12 +50,12 @@ public class Main {
         String line;
         String configJSON;
         if (resourceName == null) {
-            inputStream = Main.class.getResourceAsStream("../resources/config.json");
+            inputStream = Main.class.getResourceAsStream("../../../resources/config.json");
         } else {
             try {
                 inputStream = new FileInputStream(resourceName);
             } catch (FileNotFoundException fnfe) {
-                fnfe.printStackTrace();
+                log.error("Config file could not be read: " + fnfe.getMessage());
             }
         }
         Assert.notNull(inputStream, "Input stream is null! Check path?!");
@@ -61,7 +66,7 @@ public class Main {
                 stringBuilder.append(line);
             }
         } catch (IOException ioe) {
-            System.err.println("Buffered reader can not be invoked => " + ioe);
+            log.error("Buffered reader can not be invoked => " + ioe.getMessage());
         } finally {
             try {
                 if (reader != null) {
@@ -72,7 +77,7 @@ public class Main {
                 }
                 inputStream.close();
             } catch (IOException ioe) {
-                System.err.println("Can not close Buffered reader => " + ioe);
+                log.error("Can not close Buffered reader => " + ioe.getMessage());
             }
 
         }

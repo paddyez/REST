@@ -1,5 +1,6 @@
 package org.paddy.rest;
 
+import org.apache.log4j.Logger;
 import org.paddy.sfObjects.Account;
 import org.paddy.utils.ConsoleColors;
 import org.paddy.utils.NotifyingThread;
@@ -8,11 +9,11 @@ import org.springframework.http.*;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 
 public class PostAccount extends NotifyingThread {
-    String baseURI;
+    private static final Logger log = Logger.getLogger(PostAccount.class);
+    private String baseURI;
 
     public PostAccount(String baseURI) {
         this.baseURI = baseURI;
@@ -22,7 +23,7 @@ public class PostAccount extends NotifyingThread {
         Account a = new Account("TestAccount");
     }
 
-    void insertAccounts() {
+    private void insertAccounts() {
         Set<String> accountsS = new LinkedHashSet<>();
         Account a;
         for (int i = 0; i < 1000; i++) {
@@ -43,12 +44,12 @@ public class PostAccount extends NotifyingThread {
             int statusi = statusHS.value();
             String response = getResponse(result);
             if (statusHS == HttpStatus.OK) {
-                System.out.println("Accounts created: server status code: " + statusi + "\n" + response);
+                log.info("Accounts created: server status code: " + statusi + "\n" + response);
             } else {
                 System.err.println("Failed to create Accounts server status code: " + statusi + "\n" + response);
             }
         } catch (HttpServerErrorException hsee) {
-            int code = Integer.valueOf(hsee.getMessage().substring(0, 3)).intValue();
+            int code = Integer.parseInt(Objects.requireNonNull(hsee.getMessage()).substring(0, 3));
             System.err.println(hsee.getMessage() + ":\n" + ResponseStatusCodes.getPossibleCause("POST", code));
         }
     }
@@ -58,8 +59,8 @@ public class PostAccount extends NotifyingThread {
         HttpHeaders httpHeaders = result.getHeaders();
         Set<String> headersS = new LinkedHashSet<>();
         String resultHeadersS;
-        for (String key : httpHeaders.keySet()) {
-            headersS.add(key + ": " + httpHeaders.get(key));
+        for (Map.Entry<String, List<String>> entry : httpHeaders.entrySet()) {
+            headersS.add(entry.getKey() + ": " + entry.getValue());
         }
         resultHeadersS = String.join("\n", headersS);
         return "Headers:\n" + ConsoleColors.BLUE + resultHeadersS + ConsoleColors.WHITE + "\nBody:\n" + resultBody;

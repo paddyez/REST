@@ -1,5 +1,6 @@
 package org.paddy.api;
 
+import org.apache.log4j.Logger;
 import org.springframework.boot.json.BasicJsonParser;
 import org.springframework.boot.json.JsonParser;
 
@@ -10,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 public class OAuth {
+    private static final Logger log = Logger.getLogger(OAuth.class);
     private HttpURLConnection connection;
     private Map<String, String> configMap;
     //private static final Set<String> servicesS = new HashSet<>(Arrays.asList("authorize", "token", "revoke"));
@@ -34,9 +36,9 @@ public class OAuth {
                 setBearer(response);
             }
         } catch (IOException ioe) {
-            System.err.println("### " + ioe);
+            log.error("### " + ioe);
         }
-        System.out.println(bearer);
+        log.info("bearer: " + bearer);
     }
 
     private void connect() {
@@ -58,7 +60,7 @@ public class OAuth {
             //connection.addRequestProperty( "Accept", "*/*" );
             //connection.addRequestProperty( "Accept-Encoding", "gzip, deflate, compress" );
         } catch (IOException ioe) {
-            System.err.println("### " + ioe);
+            log.error("### " + ioe);
         }
     }
 
@@ -83,7 +85,7 @@ public class OAuth {
             printStream.print(credentials);
             printStream.close();
         } catch (IOException ioe) {
-            System.err.println("### " + ioe);
+            log.error("### " + ioe);
         }
     }
 
@@ -105,7 +107,7 @@ public class OAuth {
             bufferedReader.close();
             response = stringWriter.toString();
         } catch (IOException ioe) {
-            System.err.println("### " + ioe);
+            log.error("### " + ioe);
         }
         return response;
     }
@@ -123,12 +125,14 @@ public class OAuth {
     }
 
     private void printHeader() {
-        System.out.println("----");
+        StringBuilder sb = new StringBuilder();
+        sb.append("----");
         connection.getHeaderFields().forEach((key, values) -> {
-            System.out.print(key + ": ");
+            sb.append(key + ": ");
             String joined = String.join("|", values);
-            System.out.println(joined);
+            sb.append(joined);
         });
-        System.out.println("----");
+        sb.append("----");
+        log.info(sb.toString());
     }
 }

@@ -1,5 +1,6 @@
 package org.paddy.gui;
 
+import org.apache.log4j.Logger;
 import org.paddy.rest.GetAccount;
 import org.paddy.rest.GetContact;
 import org.paddy.rest.PostAccount;
@@ -22,24 +23,20 @@ import java.util.*;
 import static java.awt.SystemColor.desktop;
 
 public class RestJFrame extends JFrame implements ActionListener, MenuListener, WindowListener, ThreadCompleteListener {
+    private static final Logger log = Logger.getLogger(RestJFrame.class);
     private JDesktopPane desktopP;
     private JMenuBar mainMenuBar;
-    private JMenu menus;
-    private JMenuItem menuItems;
-    private GetAccount getAccount;
-    private PostAccount postAccount;
     private Map<String, String> accountsM;
-    Map<String, String> configMap;
+    private Map<String, String> configMap;
     private final Set<String> restCommandsS = new LinkedHashSet<>(Arrays.asList("DELETE", "GET", "PATCH", "POST", "PUT"));
     private static final String[] columnNames = {"Id", "Salutation", "Title", "Last Name", "First Name", "Email", "Phone", "Mobile"};
-    private Thread accT, contactT;
     private String selectedMenuS = "";
     private static final String YYYY_MM_DD_T_HH_MM_SS_SSSXXX = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
     private static final String ACCOUNTS = "Accounts";
     private static final String ACTION_COMMAND = "Action command: ";
     private static final String CLOSE_ALL = "Close all";
 
-    public RestJFrame(Map<String, String> configMap) throws HeadlessException {
+    public RestJFrame(Map<String, String> configMap) {
         super("Salesforce REST requests");
         this.configMap = configMap;
         initComponents();
@@ -48,7 +45,8 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
 
     private void initComponents() {
         int inset = 50;
-        int width, height;
+        int width;
+        int height;
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         width = screenSize.width - 2 * inset;
         height = screenSize.height - 2 * inset;
@@ -73,7 +71,7 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
         Set<String> menusS = new LinkedHashSet<>(Arrays.asList("File", "Edit", ACCOUNTS, "Contacts", "Opportunities"));
         int i = 0;
         for (String menu : menusS) {
-            menus = new JMenu(menu);
+            JMenu menus = new JMenu(menu);
             switch (i) {
                 case 0:
                     itemsS = new LinkedHashSet<>(Arrays.asList("Open", "New", "Close", CLOSE_ALL, "Exit"));
@@ -86,14 +84,14 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
                     break;
             }
             for (String entry : itemsS) {
-                menuItems = new JMenuItem(entry);
+                JMenuItem menuItems = new JMenuItem(entry);
                 menuItems.addActionListener(this);
                 if (entry.equals("POST") && menu.equals(ACCOUNTS)) {
                     // POST
-                    System.out.println("TODO: POST Accounts needs to be implemented");
+                    log.info("TODO: POST Accounts needs to be implemented");
                 } else if (entry.equals("GET") && menu.equals(ACCOUNTS)) {
                     // GET
-                    System.out.println("TODO: GET Accounts needs to be implemented");
+                    log.info("TODO: GET Accounts needs to be implemented");
                 } else {
                     menuItems.setEnabled(false);
                 }
@@ -155,18 +153,19 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
             }
         }
         if (selectedMenuS.equals("Edit")) {
-            System.out.println(ACTION_COMMAND + e.getActionCommand());
+            log.info(ACTION_COMMAND + e.getActionCommand());
         } else if (selectedMenuS.equals(ACCOUNTS)) {
-            System.out.println(ACTION_COMMAND + e.getActionCommand());
+            log.info(ACTION_COMMAND + e.getActionCommand());
+            Thread accT;
             if (e.getActionCommand().equals("POST")) {
-                postAccount = new PostAccount(configMap.get(BASE_URI));
+                PostAccount postAccount = new PostAccount(configMap.get(BASE_URI));
                 postAccount.addListener(this);
                 accT = new Thread(postAccount);
                 outputMsg("Thread post account starts");
                 accT.start();
             }
             if (e.getActionCommand().equals("GET")) {
-                getAccount = new GetAccount(configMap.get(BASE_URI));
+                GetAccount getAccount = new GetAccount(configMap.get(BASE_URI));
                 getAccount.setName("Account");
                 getAccount.addListener(this);
                 accT = new Thread(getAccount);
@@ -176,23 +175,23 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
         } else if (selectedMenuS.equals("Contacts")) {
             if (e.getActionCommand().equals("GET")) {
                 GetContact getContact;
-                for (String accountId : accountsM.keySet()) {
-                    getContact = new GetContact(configMap.get(BASE_URI), accountId, accountsM.get(accountId));
-                    getContact.setName("Contacts for Account: " + accountId);
+                for (Map.Entry<String, String> entry : accountsM.entrySet()) {
+                    getContact = new GetContact(configMap.get(BASE_URI), entry.getKey(), entry.getValue());
+                    getContact.setName("Contacts for Account: " + entry.getKey());
                     getContact.addListener(this);
-                    contactT = new Thread(getContact);
+                    Thread contactT = new Thread(getContact);
                     //contactT.setPriority(Thread.MIN_PRIORITY);
                     outputMsg("Thread get contact starts");
                     contactT.start();
                 }
             }
         } else if (e.getActionCommand().equals("Opportunities")) {
-            System.out.println(ACTION_COMMAND + e.getActionCommand());
+            log.info(ACTION_COMMAND + e.getActionCommand());
             if (e.getActionCommand().equals("GET")) {
-                System.out.println("Getting: " + e.getActionCommand());
+                log.info("Getting: " + e.getActionCommand());
             }
         } else {
-            System.out.println("Not implemented: " + e.getActionCommand());
+            log.info("Not implemented: " + e.getActionCommand());
         }
     }
 
@@ -201,10 +200,11 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
     }
 
     public void menuDeselected(MenuEvent e) {
+        // TODO
     }
 
     public void menuCanceled(MenuEvent e) {
-        System.out.println("menuCanceled: " + getMenuText(e));
+        log.info("menuCanceled: " + getMenuText(e));
     }
 
     private String getMenuText(MenuEvent e) {
@@ -218,25 +218,27 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
     }
 
     public void windowDeactivated(WindowEvent e) {
-        System.out.println("windowDeactivated");
+        log.info("windowDeactivated");
     }
 
     public void windowActivated(WindowEvent e) {
+        // TODO
     }
 
     public void windowDeiconified(WindowEvent e) {
-        System.out.println("windowDeiconified");
+        log.info("windowDeiconified");
     }
 
     public void windowIconified(WindowEvent e) {
-        System.out.println("windowIconified");
+        log.info("windowIconified");
     }
 
     public void windowClosed(WindowEvent e) {
-        System.out.println("windowClosed");
+        log.info("windowClosed");
     }
 
     public void windowOpened(WindowEvent e) {
+        // TODO
     }
 
     public void notifyOfThreadComplete(Thread notifyingThread) {
@@ -271,6 +273,6 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
         long yourmilliseconds = System.currentTimeMillis();
         SimpleDateFormat sdf = new SimpleDateFormat(YYYY_MM_DD_T_HH_MM_SS_SSSXXX);
         Date resultdate = new Date(yourmilliseconds);
-        System.out.println(ConsoleColors.YELLOW + msg + ": " + sdf.format(resultdate) + ConsoleColors.WHITE);
+        log.info(ConsoleColors.YELLOW + msg + ": " + sdf.format(resultdate) + ConsoleColors.WHITE);
     }
 }

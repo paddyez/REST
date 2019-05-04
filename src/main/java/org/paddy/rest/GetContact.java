@@ -3,11 +3,13 @@ package org.paddy.rest;
 import org.paddy.sfObjects.Account;
 import org.paddy.sfObjects.Contact;
 import org.paddy.utils.NotifyingThread;
+import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 
 public class GetContact extends NotifyingThread {
     private Object[][] obj = null;
-    private String requestURI, accountName;
+    private String requestURI;
+    private String accountName;
 
     public Object[][] getObj() {
         return obj;
@@ -27,8 +29,9 @@ public class GetContact extends NotifyingThread {
     }
 
     private synchronized void getContactsObjects() {
-        RestTemplate restTemplate = new RestTemplate();
-        Account[] accounts = restTemplate.getForObject(requestURI, Account[].class);
+        final RestTemplate restTemplate = new RestTemplate();
+        final Account[] accounts = restTemplate.getForObject(requestURI, Account[].class);
+        Assert.notNull(accounts, "Accounts are null");
         for (Account acc : accounts) {
             if (acc.getContacts() != null) {
                 this.obj = new Object[acc.getContacts().getTotalSize()][9];

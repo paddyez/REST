@@ -1,10 +1,13 @@
 import org.junit.Test;
+import org.paddy.Main;
 
 import java.net.URL;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+
 public class MainTest {
-    /** config.json looks like this
+    /**
+     * config.json looks like this
      * <pre>
      * {
      * "api_version": "42",
@@ -21,8 +24,8 @@ public class MainTest {
      */
     @Test
     public void testMain() {
-        URL url = Main.class.getResource("../resources/config.json");
-        if(url != null) {
+        URL url = Main.class.getResource("../../../resources/config.json");
+        if (url != null) {
             String resourceName = url.getFile();
             String[] results = AbstractMainTests.executeMain("Main", new String[]{"-f", resourceName});
             for (String res : results) {

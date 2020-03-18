@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class GetAccount extends NotifyingThread {
     private Map<String, String> accountsM;
-    private String baseURI;
+    private final String baseURI;
 
     public Map<String, String> getAccountsM() {
         return accountsM;

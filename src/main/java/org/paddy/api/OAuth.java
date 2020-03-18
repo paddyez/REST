@@ -13,7 +13,7 @@ import java.util.Map;
 public class OAuth {
     private static final Logger log = Logger.getLogger(OAuth.class);
     private HttpURLConnection connection;
-    private Map<String, String> configMap;
+    private final Map<String, String> configMap;
     //private static final Set<String> servicesS = new HashSet<>(Arrays.asList("authorize", "token", "revoke"));
     private final String charset = StandardCharsets.UTF_8.name();
     private static final String SERVICES_OAUTH_2 = "/services/oauth2/";

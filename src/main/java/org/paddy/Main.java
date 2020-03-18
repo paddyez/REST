@@ -50,7 +50,7 @@ public class Main {
         String line;
         String configJSON;
         if (resourceName == null) {
-            inputStream = Main.class.getResourceAsStream("../../../resources/config.json");
+            inputStream = Main.class.getResourceAsStream("/config.json");
         } else {
             try {
                 inputStream = new FileInputStream(resourceName);

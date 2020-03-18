@@ -24,7 +24,7 @@ public class MainTest {
      */
     @Test
     public void testMain() {
-        URL url = Main.class.getResource("../../../resources/config.json");
+        URL url = Main.class.getResource("/config.json");
         if (url != null) {
             String resourceName = url.getFile();
             String[] results = AbstractMainTests.executeMain("Main", new String[]{"-f", resourceName});

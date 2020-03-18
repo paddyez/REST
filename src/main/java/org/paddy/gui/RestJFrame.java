@@ -27,7 +27,7 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
     private JDesktopPane desktopP;
     private JMenuBar mainMenuBar;
     private Map<String, String> accountsM;
-    private Map<String, String> configMap;
+    private final Map<String, String> configMap;
     private final Set<String> restCommandsS = new LinkedHashSet<>(Arrays.asList("DELETE", "GET", "PATCH", "POST", "PUT"));
     private static final String[] columnNames = {"Id", "Salutation", "Title", "Last Name", "First Name", "Email", "Phone", "Mobile"};
     private String selectedMenuS = "";

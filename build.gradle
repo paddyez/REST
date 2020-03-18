@@ -1,39 +1,28 @@
-buildscript {
-    repositories {
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
-    }
-    dependencies {
-        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.7"
-    }
-}
-
-plugins {
-    id 'java'
-}
-
+apply plugin: 'java'
+apply plugin: 'maven'
 group 'rest'
 version '1.0-SNAPSHOT'
-
-sourceCompatibility = 1.8
-
+description ''
+sourceCompatibility = 14
+targetCompatibility = 14
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-Xlint:deprecation'
+    options.deprecation = true
+}
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'org.paddy.Main'
+        )
+    }
+}
 repositories {
     mavenCentral()
 }
-
 dependencies {
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.0.5.RELEASE'
     compile group: 'log4j', name: 'log4j', version: '1.2.17'
     testCompile group: 'org.assertj', name: 'assertj-core', version: '3.12.2'
-    testCompile group: 'org.hamcrest', name: 'hamcrest-all', version: '1.3'
     testCompile group: 'junit', name: 'junit', version: '4.12'
-}
-
-apply plugin: "org.sonarqube"
-
-sonarqube {
-    properties {
-        property 'sonar.rest', 'First try with sonar'
-    }
 }

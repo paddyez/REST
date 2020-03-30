@@ -49,15 +49,15 @@ abstract class AbstractMainTests {
         try {
             Class<?> clazz = Class.forName(test);
             Object app = clazz.getDeclaredConstructor().newInstance();
-            Method m = app.getClass().getMethod("main", String[].class);
-            if ((m.getReturnType() != Void.TYPE) ||
-                    (!Modifier.isStatic(m.getModifiers()))) {
+            Method method = app.getClass().getMethod("main", String[].class);
+            if ((method.getReturnType() != Void.TYPE) ||
+                    (!Modifier.isStatic(method.getModifiers()))) {
                 throw new RuntimeException(
                         "Not executable found: static main(String[])"
                 );
             }
             Object[] param = {args};
-            m.invoke(app, param);
+            method.invoke(app, param);
         } catch (Throwable e) {
             throw new RuntimeException("Error executing main", e);
         }

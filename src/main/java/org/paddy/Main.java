@@ -5,12 +5,13 @@ import org.paddy.api.OAuth;
 import org.paddy.gui.RestJFrame;
 import org.springframework.boot.json.BasicJsonParser;
 import org.springframework.boot.json.JsonParser;
-import org.springframework.util.Assert;
 
 import javax.swing.*;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class Main {
     private static final Logger log = Logger.getLogger(Main.class);
@@ -58,7 +59,7 @@ public class Main {
                 log.error("Config file could not be read: " + fnfe.getMessage());
             }
         }
-        Assert.notNull(inputStream, "Input stream is null! Check path?!");
+        assertThat(inputStream).as("Input stream is null! Check path?!").isNotNull();
         try {
             inputStreamReader = new InputStreamReader(inputStream);
             reader = new BufferedReader(inputStreamReader);

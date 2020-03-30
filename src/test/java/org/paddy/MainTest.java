@@ -28,7 +28,9 @@ public class MainTest {
     public void testMain() {
         String config = "/config.json";
         URL url = Main.class.getResource(config);
-        if (url != null) {
+        if (url == null) {
+            fail("No such resource: " + config);
+        } else {
             String resourceName = url.getFile();
             assertThat(resourceName).isNotEmpty();
             String[] results = AbstractMainTests.executeMain("org.paddy.Main", new String[]{"-f", resourceName});
@@ -37,8 +39,6 @@ public class MainTest {
                 assertThat(res).contains("INFO");
                 System.out.println("### " + res);
             }
-        } else {
-            fail("No such resource: " + config);
         }
     }
 }

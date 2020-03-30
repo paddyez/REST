@@ -5,6 +5,7 @@ import java.net.URL;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Fail.fail;
 
 public class MainTest {
     /**
@@ -25,7 +26,8 @@ public class MainTest {
      */
     @Test
     public void testMain() {
-        URL url = Main.class.getResource("/config.json");
+        String config = "/config.json";
+        URL url = Main.class.getResource(config);
         if (url != null) {
             String resourceName = url.getFile();
             assertThat(resourceName).isNotEmpty();
@@ -33,7 +35,10 @@ public class MainTest {
             for (String res : results) {
                 //Make sure there is only INFO and no WARNING or ERROR
                 assertThat(res).contains("INFO");
+                System.out.println("### " + res);
             }
+        } else {
+            fail("No such resource: " + config);
         }
     }
 }

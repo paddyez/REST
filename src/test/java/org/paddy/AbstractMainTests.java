@@ -1,3 +1,5 @@
+package org.paddy;
+
 import java.io.*;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -47,8 +49,7 @@ abstract class AbstractMainTests {
         try {
             Class<?> clazz = Class.forName(test);
             Object app = clazz.getDeclaredConstructor().newInstance();
-            Method m = app.getClass().
-                    getMethod("main", String[].class);
+            Method m = app.getClass().getMethod("main", String[].class);
             if ((m.getReturnType() != Void.TYPE) ||
                     (!Modifier.isStatic(m.getModifiers()))) {
                 throw new RuntimeException(

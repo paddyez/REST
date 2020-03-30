@@ -19,6 +19,10 @@ class Attributes {
     public Attributes() {
     }
 
+    public Attributes(String type) {
+        this.type = type;
+    }
+
     public Attributes(String type, String url) {
         this.type = type;
         this.url = url;

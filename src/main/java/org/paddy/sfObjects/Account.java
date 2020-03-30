@@ -17,6 +17,8 @@ public class Account extends sfObject {
 
     public Account(String name) {
         setName(name);
+        Attributes attributes = new Attributes("Account");
+        setAttributes(attributes);
     }
 
     public Account(Address shippingAddress,
@@ -51,21 +53,23 @@ public class Account extends sfObject {
                 .append("Id: ")
                 .append(getId())
                 .append(" Name: ")
-                .append(getName())
-                .append("\n")
-                .append("totalSize: ")
-                .append(getContacts().getTotalSize())
-                .append("\n")
-                .append("done: ")
-                .append(getContacts().getDone())
-                .append("\n");
+                .append(getName());
+        if (getContacts() != null) {
+            sb.append("\n")
+                    .append("totalSize: ")
+                    .append(getContacts().getTotalSize())
+                    .append("\n")
+                    .append("done: ")
+                    .append(getContacts().getDone())
+                    .append("\n");
+            sb.append("\n=== Contacts ===\n\n");
+            for (Contact contact : getContacts().getContacts()) {
+                sb.append(contact);
+                sb.append("\n");
+            }
+        }
         if (shippingAddress != null) {
             sb.append(shippingAddress);
-        }
-        sb.append("\n=== Contacts ===\n\n");
-        for (Contact contact : getContacts().getContacts()) {
-            sb.append(contact);
-            sb.append("\n");
         }
         return sb.toString();
     }

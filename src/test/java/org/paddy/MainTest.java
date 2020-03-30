@@ -1,9 +1,10 @@
-import org.junit.Test;
-import org.paddy.Main;
+package org.paddy;
 
 import java.net.URL;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MainTest {
     /**
@@ -27,9 +28,10 @@ public class MainTest {
         URL url = Main.class.getResource("/config.json");
         if (url != null) {
             String resourceName = url.getFile();
-            String[] results = AbstractMainTests.executeMain("Main", new String[]{"-f", resourceName});
+            assertThat(resourceName).isNotEmpty();
+            String[] results = AbstractMainTests.executeMain("org.paddy.Main", new String[]{"-f", resourceName});
             for (String res : results) {
-                assertEquals("", res);
+                assertThat(res).isEqualTo("");
             }
         }
     }

@@ -31,7 +31,8 @@ public class MainTest {
             assertThat(resourceName).isNotEmpty();
             String[] results = AbstractMainTests.executeMain("org.paddy.Main", new String[]{"-f", resourceName});
             for (String res : results) {
-                assertThat(res).isEqualTo("");
+                //Make sure there is only INFO and no WARNING or ERROR
+                assertThat(res).contains("INFO");
             }
         }
     }

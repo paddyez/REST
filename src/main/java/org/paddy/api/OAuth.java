@@ -1,6 +1,7 @@
 package org.paddy.api;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.boot.json.BasicJsonParser;
 import org.springframework.boot.json.JsonParser;
 
@@ -11,7 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 public class OAuth {
-    private static final Logger log = Logger.getLogger(OAuth.class);
+    private static final Logger log = LogManager.getLogger(OAuth.class);
     private HttpURLConnection connection;
     private final Map<String, String> configMap;
     //private static final Set<String> servicesS = new HashSet<>(Arrays.asList("authorize", "token", "revoke"));

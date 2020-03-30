@@ -1,6 +1,7 @@
 package org.paddy.gui;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.paddy.rest.GetAccount;
 import org.paddy.rest.GetContact;
 import org.paddy.rest.PostAccount;
@@ -23,7 +24,7 @@ import java.util.*;
 import static java.awt.SystemColor.desktop;
 
 public class RestJFrame extends JFrame implements ActionListener, MenuListener, WindowListener, ThreadCompleteListener {
-    private static final Logger log = Logger.getLogger(RestJFrame.class);
+    private static final Logger log = LogManager.getLogger(RestJFrame.class);
     private JDesktopPane desktopP;
     private JMenuBar mainMenuBar;
     private Map<String, String> accountsM;

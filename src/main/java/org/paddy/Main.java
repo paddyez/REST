@@ -1,6 +1,7 @@
 package org.paddy;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.paddy.api.OAuth;
 import org.paddy.gui.RestJFrame;
 import org.springframework.boot.json.BasicJsonParser;
@@ -14,7 +15,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class Main {
-    private static final Logger log = Logger.getLogger(Main.class);
+    private static final Logger log = LogManager.getLogger(Main.class);
 
     public static void main(String[] args) {
         Map<String, Object> jsonMap = new HashMap<>();

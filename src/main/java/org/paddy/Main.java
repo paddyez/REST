@@ -2,7 +2,6 @@ package org.paddy;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import org.paddy.api.OAuth;
 import org.paddy.gui.RestJFrame;
 import org.springframework.boot.json.BasicJsonParser;
 import org.springframework.boot.json.JsonParser;
@@ -39,8 +38,6 @@ public class Main {
         });
         */
         SwingUtilities.invokeLater(() -> new RestJFrame(configMap));
-        OAuth oAuth = new OAuth(configMap);
-        oAuth.login();
     }
 
     private static Map<String, Object> configFromFile(String resourceName) {

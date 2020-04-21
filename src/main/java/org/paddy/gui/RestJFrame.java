@@ -27,6 +27,7 @@ import static java.awt.SystemColor.desktop;
 
 public class RestJFrame extends JFrame implements ActionListener, MenuListener, WindowListener, ThreadCompleteListener {
     private static final Logger log = LogManager.getLogger(RestJFrame.class);
+    public static final String O_AUTH = "OAuth";
     private JDesktopPane desktopP;
     private JMenuBar mainMenuBar;
     private Map<String, String> accountsM;
@@ -77,7 +78,7 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
             JMenu menus = new JMenu(menu);
             switch (i) {
                 case 0:
-                    itemsS = new LinkedHashSet<>(Arrays.asList("OAuth", "New", "Close", CLOSE_ALL, "Exit"));
+                    itemsS = new LinkedHashSet<>(Arrays.asList(O_AUTH, "New", "Close", CLOSE_ALL, "Exit"));
                     break;
                 case 1:
                     itemsS = new HashSet<>();
@@ -93,7 +94,9 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
                     // POST
                     log.info("TODO: POST Accounts needs to be implemented");
                 } else if (entry.equals("GET") && menu.equals(ACCOUNTS)) {
-                } else if (entry.equals("OAuth") && menu.equals("Main")) {
+                    //NOSONAR
+                } else if (entry.equals(O_AUTH) && menu.equals("Main")) {
+                    //NOSONAR
                 } else {
                     menuItems.setEnabled(false);
                 }
@@ -157,7 +160,7 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
     }
 
     private void mainMenuAction(ActionEvent e) {
-        if (e.getActionCommand().equals("OAuth")) {
+        if (e.getActionCommand().equals(O_AUTH)) {
             OAuth oAuth = new OAuth(configMap);
             oAuth.login();
         } else if (e.getActionCommand().equals(CLOSE_ALL)) {
@@ -203,7 +206,6 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
                 GetContact getContact = new GetContact(configMap.get(BASE_URI), entry.getKey(), entry.getValue());
                 getContact.setName("Contacts for Account: " + entry.getKey());
                 getContact.addListener(this);
-                //contactT.setPriority(Thread.MIN_PRIORITY);
                 outputMsg("Thread get contact starts");
                 new Thread(getContact).start();
             }

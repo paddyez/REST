@@ -1,7 +1,7 @@
 package org.paddy.api;
 
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.paddy.utils.ResponseStatusCodes;
 import org.springframework.boot.json.BasicJsonParser;
 import org.springframework.boot.json.JsonParser;
@@ -10,35 +10,35 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
 public class OAuth {
+    enum Service {AUTHORIZE, TOKEN, REVOKE;}
+
     private static final Logger log = LogManager.getLogger(OAuth.class);
     public static final String LOG_ERROR_MESSAGE = "### {}";
-    private HttpURLConnection connection;
+    private InputStream responseInputStream;
     private final Map<String, String> configMap;
-    //private static final Set<String> servicesS = new HashSet<>(Arrays.asList("authorize", "token", "revoke"));
-    private final String charset = StandardCharsets.UTF_8.name();
     private static final String SERVICES_OAUTH_2 = "/services/oauth2/";
     private String bearer;
-    private static final boolean useCompression = true;
+    private static final boolean USE_COMPRESSION = true;
 
     public OAuth(Map<String, String> configMap) {
         this.configMap = configMap;
     }
 
     public void login() {
-        String response;
         int responseCode = connect();
         if (responseCode == 200) {
-            response = response();
-            if (response != null) {
-                setBearer(response);
+            String jsonResponse = response();
+            if (jsonResponse != null) {
+                setBearer(jsonResponse);
                 log.info("bearer: {}", bearer);
             }
         } else {
-            if(responseCode != -1) {
+            if (responseCode != -1) {
                 log.error("REST POST to default Salesforce API failed with Error code {}: {}", responseCode, ResponseStatusCodes.getPossibleCause("POST", responseCode));
             }
         }
@@ -46,33 +46,39 @@ public class OAuth {
 
     private int connect() {
         /* TODO if other than login */
+        HttpURLConnection connection;
         String lengthS = String.valueOf(loginCredentials().length());
         int responseCode = -1;
         try {
-            String uri = "https://" + configMap.get("my_domain") + SERVICES_OAUTH_2 + "token";
+            String uri = "https://" + configMap.get("my_domain") + SERVICES_OAUTH_2 + Service.TOKEN.name().toLowerCase();
             URL url = new URL(uri);
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
             connection.setUseCaches(false);
             connection.setDoOutput(true);
             connection.setDoInput(true);
-            connection.setRequestProperty("charset", charset);
+            connection.setRequestProperty("charset", StandardCharsets.UTF_8.name());
             connection.addRequestProperty("Content-Length", lengthS);
             connection.setConnectTimeout(5000);
             connection.setReadTimeout(5000);
             //connection.addRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             //connection.addRequestProperty( "Accept", "*/*" );
-            if (useCompression) {
+            if (USE_COMPRESSION) {
                 connection.addRequestProperty("Accept-Encoding", "gzip, deflate, compress");
             }
-            printToOut();
+            printToOut(connection);
             connection.connect();
             responseCode = connection.getResponseCode();
+            if (USE_COMPRESSION) {
+                responseInputStream = new GZIPInputStream(connection.getInputStream());
+            } else {
+                responseInputStream = connection.getInputStream();
+            }
+            if (log.isDebugEnabled()) {
+                printHeader(connection.getHeaderFields());
+            }
         } catch (IOException ioe) {
             log.error(LOG_ERROR_MESSAGE, ioe.getMessage());
-        }
-        if (log.isDebugEnabled()) {
-            printHeader();
         }
         return responseCode;
     }
@@ -90,7 +96,7 @@ public class OAuth {
                 configMap.get("client_secret");
     }
 
-    private void printToOut() {
+    private void printToOut(HttpURLConnection connection) {
         /* TODO print other than login */
         String credentials = loginCredentials();
         try {
@@ -105,16 +111,10 @@ public class OAuth {
     private String response() {
         String response = null;
         BufferedReader bufferedReader;
-        InputStream inputStream;
         try {
-            if (useCompression) {
-                inputStream = new GZIPInputStream(connection.getInputStream());
-            } else {
-                inputStream = connection.getInputStream();
-            }
-            bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+            bufferedReader = new BufferedReader(new InputStreamReader(responseInputStream));
             String line;
-            StringWriter stringWriter = new StringWriter(connection.getContentLength() > 0 ? connection.getContentLength() : 2048);
+            StringWriter stringWriter = new StringWriter();
             while ((line = bufferedReader.readLine()) != null) {
                 stringWriter.append(line);
             }
@@ -138,10 +138,10 @@ public class OAuth {
         }
     }
 
-    private void printHeader() {
+    private void printHeader(Map<String, List<String>> headerMap) {
         StringBuilder sb = new StringBuilder();
         sb.append("\n----\n");
-        connection.getHeaderFields().forEach((key, values) -> {
+        headerMap.forEach((key, values) -> {
             sb.append(key).append(": ");
             String joined = String.join("|", values);
             joined += "\n";

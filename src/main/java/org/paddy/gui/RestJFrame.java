@@ -6,6 +6,7 @@ import org.paddy.rest.GetAccount;
 import org.paddy.rest.GetContact;
 import org.paddy.rest.PostAccount;
 import org.paddy.utils.ConsoleColors;
+import org.paddy.utils.NotifyingThread;
 import org.paddy.utils.ThreadCompleteListener;
 
 import javax.swing.*;
@@ -34,7 +35,7 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
     private String selectedMenuS = "";
     private static final String YYYY_MM_DD_T_HH_MM_SS_SSSXXX = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
     private static final String ACCOUNTS = "Accounts";
-    private static final String ACTION_COMMAND = "Action command: ";
+    private static final String ACTION_COMMAND = "Action command: {}";
     private static final String CLOSE_ALL = "Close all";
 
     public RestJFrame(Map<String, String> configMap) {
@@ -63,7 +64,7 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
         createDesktop();
         this.pack();
         this.setVisible(true);
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
     private void createMenu() {
@@ -138,61 +139,70 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
     public void actionPerformed(ActionEvent e) {
         final String BASE_URI = "baseURI";
         if (selectedMenuS.equals("File")) {
-            if (e.getActionCommand().equals(CLOSE_ALL)) {
-                for (JInternalFrame internalFrame : desktopP.getAllFrames()) {
-                    desktopP.remove(internalFrame);
-                    internalFrame.dispose();
-                }
-                revalidate();
-                repaint();
-                JMenu m = mainMenuBar.getMenu(0);
-                for (int i = 0; i < m.getItemCount(); i++) {
-                    if (m.getItem(i).getText().equals(CLOSE_ALL)) {
-                        m.getItem(i).setEnabled(false);
-                    }
+            fileMenuAction(e);
+        }
+        if (selectedMenuS.equals("Edit")) {
+            log.info(ACTION_COMMAND, e.getActionCommand());
+        } else if (selectedMenuS.equals(ACCOUNTS)) {
+            accountMenuAction(e, BASE_URI);
+        } else if (selectedMenuS.equals("Contacts")) {
+            contactMenuAction(e, BASE_URI);
+        } else if (e.getActionCommand().equals("Opportunities")) {
+            log.info(ACTION_COMMAND, e.getActionCommand());
+            if (e.getActionCommand().equals("GET")) {
+                log.info("Getting: {}", e.getActionCommand());
+            }
+        } else {
+            log.info("Not implemented: {}", e.getActionCommand());
+        }
+    }
+
+    private void fileMenuAction(ActionEvent e) {
+        if (e.getActionCommand().equals(CLOSE_ALL)) {
+            for (JInternalFrame internalFrame : desktopP.getAllFrames()) {
+                desktopP.remove(internalFrame);
+                internalFrame.dispose();
+            }
+            revalidate();
+            repaint();
+            JMenu m = mainMenuBar.getMenu(0);
+            for (int i = 0; i < m.getItemCount(); i++) {
+                if (m.getItem(i).getText().equals(CLOSE_ALL)) {
+                    m.getItem(i).setEnabled(false);
                 }
             }
         }
-        if (selectedMenuS.equals("Edit")) {
-            log.info(ACTION_COMMAND + e.getActionCommand());
-        } else if (selectedMenuS.equals(ACCOUNTS)) {
-            log.info(ACTION_COMMAND + e.getActionCommand());
-            Thread accT;
-            if (e.getActionCommand().equals("POST")) {
-                PostAccount postAccount = new PostAccount(configMap.get(BASE_URI));
-                postAccount.addListener(this);
-                accT = new Thread(postAccount);
-                outputMsg("Thread post account starts");
-                accT.start();
+    }
+
+    private void accountMenuAction(ActionEvent e, String BASE_URI) {
+        if(log.isInfoEnabled()) {
+            log.info(ACTION_COMMAND, e.getActionCommand());
+        }
+        if (e.getActionCommand().equals("POST")) {
+            PostAccount postAccount = new PostAccount(configMap.get(BASE_URI));
+            postAccount.addListener(this);
+            outputMsg("Thread post account starts");
+            new Thread(postAccount).start();
+        }
+        if (e.getActionCommand().equals("GET")) {
+            GetAccount getAccount = new GetAccount(configMap.get(BASE_URI));
+            getAccount.setName("All Accounts");
+            getAccount.addListener(this);
+            outputMsg("Thread get account starts");
+            new Thread(getAccount).start();
+        }
+    }
+
+    private void contactMenuAction(ActionEvent e, String BASE_URI) {
+        if (e.getActionCommand().equals("GET")) {
+            for (Map.Entry<String, String> entry : accountsM.entrySet()) {
+                GetContact getContact = new GetContact(configMap.get(BASE_URI), entry.getKey(), entry.getValue());
+                getContact.setName("Contacts for Account: " + entry.getKey());
+                getContact.addListener(this);
+                //contactT.setPriority(Thread.MIN_PRIORITY);
+                outputMsg("Thread get contact starts");
+                new Thread(getContact).start();
             }
-            if (e.getActionCommand().equals("GET")) {
-                GetAccount getAccount = new GetAccount(configMap.get(BASE_URI));
-                getAccount.setName("Account");
-                getAccount.addListener(this);
-                accT = new Thread(getAccount);
-                outputMsg("Thread get account starts");
-                accT.start();
-            }
-        } else if (selectedMenuS.equals("Contacts")) {
-            if (e.getActionCommand().equals("GET")) {
-                GetContact getContact;
-                for (Map.Entry<String, String> entry : accountsM.entrySet()) {
-                    getContact = new GetContact(configMap.get(BASE_URI), entry.getKey(), entry.getValue());
-                    getContact.setName("Contacts for Account: " + entry.getKey());
-                    getContact.addListener(this);
-                    Thread contactT = new Thread(getContact);
-                    //contactT.setPriority(Thread.MIN_PRIORITY);
-                    outputMsg("Thread get contact starts");
-                    contactT.start();
-                }
-            }
-        } else if (e.getActionCommand().equals("Opportunities")) {
-            log.info(ACTION_COMMAND + e.getActionCommand());
-            if (e.getActionCommand().equals("GET")) {
-                log.info("Getting: " + e.getActionCommand());
-            }
-        } else {
-            log.info("Not implemented: " + e.getActionCommand());
         }
     }
 
@@ -205,7 +215,9 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
     }
 
     public void menuCanceled(MenuEvent e) {
-        log.info("menuCanceled: " + getMenuText(e));
+        if(log.isInfoEnabled()) {
+            log.info("menuCanceled: {}", getMenuText(e));
+        }
     }
 
     private String getMenuText(MenuEvent e) {
@@ -219,7 +231,9 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
     }
 
     public void windowDeactivated(WindowEvent e) {
-        log.info("windowDeactivated");
+        if(log.isInfoEnabled()) {
+            log.info("windowDeactivated");
+        }
     }
 
     public void windowActivated(WindowEvent e) {
@@ -227,22 +241,28 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
     }
 
     public void windowDeiconified(WindowEvent e) {
-        log.info("windowDeiconified");
+        if(log.isInfoEnabled()) {
+            log.info("windowDeiconified");
+        }
     }
 
     public void windowIconified(WindowEvent e) {
-        log.info("windowIconified");
+        if(log.isInfoEnabled()) {
+            log.info("windowIconified");
+        }
     }
 
     public void windowClosed(WindowEvent e) {
-        log.info("windowClosed");
+        if(log.isInfoEnabled()) {
+            log.info("windowClosed");
+        }
     }
 
     public void windowOpened(WindowEvent e) {
         // TODO
     }
 
-    public void notifyOfThreadComplete(Thread notifyingThread) {
+    public void notifyOfThreadComplete(NotifyingThread notifyingThread) {
         String currentThreadClassName = notifyingThread.getClass().getSimpleName();
         if (currentThreadClassName.equals("GetAccount")) {
             outputMsg("Thread ger account ends");
@@ -274,6 +294,8 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
         long yourmilliseconds = System.currentTimeMillis();
         SimpleDateFormat sdf = new SimpleDateFormat(YYYY_MM_DD_T_HH_MM_SS_SSSXXX);
         Date resultdate = new Date(yourmilliseconds);
-        log.info(ConsoleColors.YELLOW + msg + ": " + sdf.format(resultdate) + ConsoleColors.WHITE);
+        if(log.isInfoEnabled()) {
+            log.info( "{}{}: {}{}", ConsoleColors.YELLOW, msg, sdf.format(resultdate), ConsoleColors.WHITE);
+        }
     }
 }

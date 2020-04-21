@@ -13,6 +13,7 @@ import java.util.Map;
 
 public class OAuth {
     private static final Logger log = LogManager.getLogger(OAuth.class);
+    public static final String LOG_ERROR_MESSAGE = "### {}";
     private HttpURLConnection connection;
     private final Map<String, String> configMap;
     //private static final Set<String> servicesS = new HashSet<>(Arrays.asList("authorize", "token", "revoke"));
@@ -37,9 +38,9 @@ public class OAuth {
                 setBearer(response);
             }
         } catch (IOException ioe) {
-            log.error("### " + ioe);
+            log.error(LOG_ERROR_MESSAGE, ioe.getMessage());
         }
-        log.info("bearer: " + bearer);
+        log.info("bearer: {}", bearer);
     }
 
     private void connect() {
@@ -61,7 +62,7 @@ public class OAuth {
             //connection.addRequestProperty( "Accept", "*/*" );
             //connection.addRequestProperty( "Accept-Encoding", "gzip, deflate, compress" );
         } catch (IOException ioe) {
-            log.error("### " + ioe);
+            log.error(LOG_ERROR_MESSAGE, ioe.getMessage());
         }
     }
 
@@ -86,7 +87,7 @@ public class OAuth {
             printStream.print(credentials);
             printStream.close();
         } catch (IOException ioe) {
-            log.error("### " + ioe);
+            log.error(LOG_ERROR_MESSAGE, ioe.getMessage());
         }
     }
 
@@ -108,7 +109,7 @@ public class OAuth {
             bufferedReader.close();
             response = stringWriter.toString();
         } catch (IOException ioe) {
-            log.error("### " + ioe);
+            log.error(LOG_ERROR_MESSAGE, ioe.getMessage());
         }
         return response;
     }
@@ -129,11 +130,13 @@ public class OAuth {
         StringBuilder sb = new StringBuilder();
         sb.append("----");
         connection.getHeaderFields().forEach((key, values) -> {
-            sb.append(key + ": ");
+            sb.append(key).append(": ");
             String joined = String.join("|", values);
             sb.append(joined);
         });
         sb.append("----");
-        log.info(sb.toString());
+        if(log.isInfoEnabled()) {
+            log.info(sb.toString());
+        }
     }
 }

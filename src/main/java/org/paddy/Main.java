@@ -46,10 +46,7 @@ public class Main {
     private static Map<String, Object> configFromFile(String resourceName) {
         Map<String, Object> jsonMap;
         InputStream inputStream = null;
-        InputStreamReader inputStreamReader = null;
-        BufferedReader reader = null;
         StringBuilder stringBuilder = new StringBuilder();
-        String line;
         String configJSON;
         if (resourceName == null) {
             inputStream = Main.class.getResourceAsStream("/config.json");
@@ -57,35 +54,29 @@ public class Main {
             try {
                 inputStream = new FileInputStream(resourceName);
             } catch (FileNotFoundException fnfe) {
-                log.error("Config file could not be read: " + fnfe.getMessage());
+                log.error("Config file could not be read => {}", fnfe.getMessage());
             }
         }
         assertThat(inputStream).as("Input stream is null! Check path?!").isNotNull();
-        try {
-            inputStreamReader = new InputStreamReader(inputStream);
-            reader = new BufferedReader(inputStreamReader);
-            while ((line = reader.readLine()) != null) {
-                stringBuilder.append(line);
-            }
+        try (InputStreamReader inputStreamReader = new InputStreamReader(inputStream)){
+            getFileContentsAsString(stringBuilder, inputStreamReader);
         } catch (IOException ioe) {
-            log.error("Buffered reader can not be invoked => " + ioe.getMessage());
-        } finally {
-            try {
-                if (reader != null) {
-                    reader.close();
-                }
-                if (inputStreamReader != null) {
-                    inputStreamReader.close();
-                }
-                inputStream.close();
-            } catch (IOException ioe) {
-                log.error("Can not close Buffered reader => " + ioe.getMessage());
-            }
-
+            log.error("InputStreamReader can not be invoked => {}", ioe.getMessage());
         }
         configJSON = stringBuilder.toString();
         JsonParser jsonParser = new BasicJsonParser();
         jsonMap = jsonParser.parseMap(configJSON);
         return jsonMap;
+    }
+
+    private static void getFileContentsAsString(StringBuilder stringBuilder, InputStreamReader inputStreamReader) {
+        String line;
+        try (BufferedReader reader = new BufferedReader(inputStreamReader)) {
+            while ((line = reader.readLine()) != null) {
+                stringBuilder.append(line);
+            }
+        } catch (IOException ioe) {
+            log.error("BufferedReader can not be invoked => {}", ioe.getMessage());
+        }
     }
 }

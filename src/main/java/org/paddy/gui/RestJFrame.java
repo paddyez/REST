@@ -2,6 +2,7 @@ package org.paddy.gui;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.paddy.api.OAuth;
 import org.paddy.rest.GetAccount;
 import org.paddy.rest.GetContact;
 import org.paddy.rest.PostAccount;
@@ -70,13 +71,13 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
     private void createMenu() {
         mainMenuBar = new JMenuBar();
         Set<String> itemsS;
-        Set<String> menusS = new LinkedHashSet<>(Arrays.asList("File", "Edit", ACCOUNTS, "Contacts", "Opportunities"));
+        Set<String> menusS = new LinkedHashSet<>(Arrays.asList("Main", "Edit", ACCOUNTS, "Contacts", "Opportunities"));
         int i = 0;
         for (String menu : menusS) {
             JMenu menus = new JMenu(menu);
             switch (i) {
                 case 0:
-                    itemsS = new LinkedHashSet<>(Arrays.asList("Open", "New", "Close", CLOSE_ALL, "Exit"));
+                    itemsS = new LinkedHashSet<>(Arrays.asList("OAuth", "New", "Close", CLOSE_ALL, "Exit"));
                     break;
                 case 1:
                     itemsS = new HashSet<>();
@@ -92,8 +93,7 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
                     // POST
                     log.info("TODO: POST Accounts needs to be implemented");
                 } else if (entry.equals("GET") && menu.equals(ACCOUNTS)) {
-                    // GET
-                    log.info("TODO: GET Accounts needs to be implemented");
+                } else if (entry.equals("OAuth") && menu.equals("Main")) {
                 } else {
                     menuItems.setEnabled(false);
                 }
@@ -138,10 +138,9 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
 
     public void actionPerformed(ActionEvent e) {
         final String BASE_URI = "baseURI";
-        if (selectedMenuS.equals("File")) {
-            fileMenuAction(e);
-        }
-        if (selectedMenuS.equals("Edit")) {
+        if (selectedMenuS.equals("Main")) {
+            mainMenuAction(e);
+        } else if (selectedMenuS.equals("Edit")) {
             log.info(ACTION_COMMAND, e.getActionCommand());
         } else if (selectedMenuS.equals(ACCOUNTS)) {
             accountMenuAction(e, BASE_URI);
@@ -153,12 +152,15 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
                 log.info("Getting: {}", e.getActionCommand());
             }
         } else {
-            log.info("Not implemented: {}", e.getActionCommand());
+            log.error("Not implemented action: {}", e.getActionCommand());
         }
     }
 
-    private void fileMenuAction(ActionEvent e) {
-        if (e.getActionCommand().equals(CLOSE_ALL)) {
+    private void mainMenuAction(ActionEvent e) {
+        if (e.getActionCommand().equals("OAuth")) {
+            OAuth oAuth = new OAuth(configMap);
+            oAuth.login();
+        } else if (e.getActionCommand().equals(CLOSE_ALL)) {
             for (JInternalFrame internalFrame : desktopP.getAllFrames()) {
                 desktopP.remove(internalFrame);
                 internalFrame.dispose();
@@ -171,11 +173,13 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
                     m.getItem(i).setEnabled(false);
                 }
             }
+        } else {
+            log.error("Not implemented main menu cction: {}", e.getActionCommand());
         }
     }
 
     private void accountMenuAction(ActionEvent e, String BASE_URI) {
-        if(log.isInfoEnabled()) {
+        if (log.isInfoEnabled()) {
             log.info(ACTION_COMMAND, e.getActionCommand());
         }
         if (e.getActionCommand().equals("POST")) {
@@ -215,7 +219,7 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
     }
 
     public void menuCanceled(MenuEvent e) {
-        if(log.isInfoEnabled()) {
+        if (log.isInfoEnabled()) {
             log.info("menuCanceled: {}", getMenuText(e));
         }
     }
@@ -231,7 +235,7 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
     }
 
     public void windowDeactivated(WindowEvent e) {
-        if(log.isInfoEnabled()) {
+        if (log.isInfoEnabled()) {
             log.info("windowDeactivated");
         }
     }
@@ -241,19 +245,19 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
     }
 
     public void windowDeiconified(WindowEvent e) {
-        if(log.isInfoEnabled()) {
+        if (log.isInfoEnabled()) {
             log.info("windowDeiconified");
         }
     }
 
     public void windowIconified(WindowEvent e) {
-        if(log.isInfoEnabled()) {
+        if (log.isInfoEnabled()) {
             log.info("windowIconified");
         }
     }
 
     public void windowClosed(WindowEvent e) {
-        if(log.isInfoEnabled()) {
+        if (log.isInfoEnabled()) {
             log.info("windowClosed");
         }
     }
@@ -294,8 +298,8 @@ public class RestJFrame extends JFrame implements ActionListener, MenuListener, 
         long yourmilliseconds = System.currentTimeMillis();
         SimpleDateFormat sdf = new SimpleDateFormat(YYYY_MM_DD_T_HH_MM_SS_SSSXXX);
         Date resultdate = new Date(yourmilliseconds);
-        if(log.isInfoEnabled()) {
-            log.info( "{}{}: {}{}", ConsoleColors.YELLOW, msg, sdf.format(resultdate), ConsoleColors.WHITE);
+        if (log.isInfoEnabled()) {
+            log.info("{}{}: {}{}", ConsoleColors.YELLOW, msg, sdf.format(resultdate), ConsoleColors.WHITE);
         }
     }
 }

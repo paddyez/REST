@@ -2,6 +2,7 @@ package org.paddy.api;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.paddy.utils.ResponseStatusCodes;
 import org.springframework.boot.json.BasicJsonParser;
 import org.springframework.boot.json.JsonParser;
 
@@ -10,6 +11,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.zip.GZIPInputStream;
 
 public class OAuth {
     private static final Logger log = LogManager.getLogger(OAuth.class);
@@ -20,6 +22,7 @@ public class OAuth {
     private final String charset = StandardCharsets.UTF_8.name();
     private static final String SERVICES_OAUTH_2 = "/services/oauth2/";
     private String bearer;
+    private static final boolean useCompression = true;
 
     public OAuth(Map<String, String> configMap) {
         this.configMap = configMap;
@@ -27,25 +30,24 @@ public class OAuth {
 
     public void login() {
         String response;
-        connect();
-        if (connection == null) throw new AssertionError();
-        try {
-            printToOut();
-            connection.connect();
-            printHeader();
+        int responseCode = connect();
+        if (responseCode == 200) {
             response = response();
             if (response != null) {
                 setBearer(response);
+                log.info("bearer: {}", bearer);
             }
-        } catch (IOException ioe) {
-            log.error(LOG_ERROR_MESSAGE, ioe.getMessage());
+        } else {
+            if(responseCode != -1) {
+                log.error("REST POST to default Salesforce API failed with Error code {}: {}", responseCode, ResponseStatusCodes.getPossibleCause("POST", responseCode));
+            }
         }
-        log.info("bearer: {}", bearer);
     }
 
-    private void connect() {
+    private int connect() {
         /* TODO if other than login */
         String lengthS = String.valueOf(loginCredentials().length());
+        int responseCode = -1;
         try {
             String uri = "https://" + configMap.get("my_domain") + SERVICES_OAUTH_2 + "token";
             URL url = new URL(uri);
@@ -60,10 +62,19 @@ public class OAuth {
             connection.setReadTimeout(5000);
             //connection.addRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             //connection.addRequestProperty( "Accept", "*/*" );
-            //connection.addRequestProperty( "Accept-Encoding", "gzip, deflate, compress" );
+            if (useCompression) {
+                connection.addRequestProperty("Accept-Encoding", "gzip, deflate, compress");
+            }
+            printToOut();
+            connection.connect();
+            responseCode = connection.getResponseCode();
         } catch (IOException ioe) {
             log.error(LOG_ERROR_MESSAGE, ioe.getMessage());
         }
+        if (log.isDebugEnabled()) {
+            printHeader();
+        }
+        return responseCode;
     }
 
     private String loginCredentials() {
@@ -93,14 +104,15 @@ public class OAuth {
 
     private String response() {
         String response = null;
+        BufferedReader bufferedReader;
+        InputStream inputStream;
         try {
-            int status = connection.getResponseCode();
-            BufferedReader bufferedReader;
-            if (status > 299) {
-                bufferedReader = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
+            if (useCompression) {
+                inputStream = new GZIPInputStream(connection.getInputStream());
             } else {
-                bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                inputStream = connection.getInputStream();
             }
+            bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
             String line;
             StringWriter stringWriter = new StringWriter(connection.getContentLength() > 0 ? connection.getContentLength() : 2048);
             while ((line = bufferedReader.readLine()) != null) {
@@ -128,14 +140,15 @@ public class OAuth {
 
     private void printHeader() {
         StringBuilder sb = new StringBuilder();
-        sb.append("----");
+        sb.append("\n----\n");
         connection.getHeaderFields().forEach((key, values) -> {
             sb.append(key).append(": ");
             String joined = String.join("|", values);
+            joined += "\n";
             sb.append(joined);
         });
         sb.append("----");
-        if(log.isInfoEnabled()) {
+        if (log.isInfoEnabled()) {
             log.info(sb.toString());
         }
     }

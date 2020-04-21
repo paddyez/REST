@@ -12,7 +12,7 @@ public class Account extends sfObject {
         return contacts;
     }
 
-    public Account() {
+    private Account() {
     }
 
     public Account(String name) {
@@ -34,10 +34,9 @@ public class Account extends sfObject {
     }
 
     public String getJSON() {
-        String jsonStr = "{\"attributes\":{\"type\":\"Account\"},\"Name\":\"" +
+        return "{\"attributes\":{\"type\":\"Account\"},\"Name\":\"" +
                 getName() +
                 "\",\"ShippingStreet\":\"Willy-Brandt-Platz 1-3\",\"ShippingStreet\":\"Willy-Brandt-Platz 1-3\",\"ShippingState\":\"\",\"ShippingPostalCode\":\"68161\",\"ShippingLongitude\":\"\",\"ShippingLatitude\":\"\",\"ShippingGeocodeAccuracy\":\"\",\"ShippingCountry\":\"Deutschland\",\"ShippingCity\":\"Mannheim\"}";
-        return jsonStr;
     }
 
     @Override
@@ -63,7 +62,7 @@ public class Account extends sfObject {
                     .append(getContacts().getDone())
                     .append("\n");
             sb.append("\n=== Contacts ===\n\n");
-            for (Contact contact : getContacts().getContacts()) {
+            for (Contact contact : getContacts().getContactsA()) {
                 sb.append(contact);
                 sb.append("\n");
             }

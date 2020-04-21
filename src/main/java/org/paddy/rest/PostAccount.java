@@ -46,11 +46,11 @@ public class PostAccount extends NotifyingThread {
             if (statusHS == HttpStatus.OK) {
                 log.info("Accounts created: server status code: " + statusi + "\n" + response);
             } else {
-                System.err.println("Failed to create Accounts server status code: " + statusi + "\n" + response);
+                log.error("Failed to create Accounts server status code: " + statusi + "\n" + response);
             }
         } catch (HttpServerErrorException hsee) {
             int code = Integer.parseInt(Objects.requireNonNull(hsee.getMessage()).substring(0, 3));
-            System.err.println(hsee.getMessage() + ":\n" + ResponseStatusCodes.getPossibleCause("POST", code));
+            log.error(hsee.getMessage() + ":\n" + ResponseStatusCodes.getPossibleCause("POST", code));
         }
     }
 

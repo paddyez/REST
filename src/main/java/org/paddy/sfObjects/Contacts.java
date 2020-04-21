@@ -8,7 +8,7 @@ public class Contacts {
     @JsonProperty("done")
     private boolean done;
     @JsonProperty("records")
-    private Contact[] contacts;
+    private Contact[] contactsA;
 
     public int getTotalSize() {
         return totalSize;
@@ -18,16 +18,16 @@ public class Contacts {
         return done;
     }
 
-    public Contact[] getContacts() {
-        return contacts;
+    public Contact[] getContactsA() {
+        return contactsA;
     }
 
     public Contacts() {
     }
 
-    public Contacts(int totalSize, boolean done, Contact[] contacts) {
+    public Contacts(int totalSize, boolean done, Contact[] contactsA) {
         this.totalSize = totalSize;
         this.done = done;
-        this.contacts = contacts;
+        this.contactsA = contactsA;
     }
 }

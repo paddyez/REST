@@ -36,7 +36,7 @@ public class GetContact extends NotifyingThread {
             if (acc.getContacts() != null) {
                 this.obj = new Object[acc.getContacts().getTotalSize()][9];
                 int i = 0;
-                for (Contact contact : acc.getContacts().getContacts()) {
+                for (Contact contact : acc.getContacts().getContactsA()) {
                     this.obj[i] = contact.getRow();
                     i++;
                 }

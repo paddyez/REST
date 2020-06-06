@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.paddy.utils.ResponseStatusCodes.CodeEnum;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 public class ResponseStatusCodesTest {
     public static final String EXPECTED_GET_404 = "The URL is unmapped in an existing @RestResource annotation.\n" +
@@ -24,7 +25,7 @@ public class ResponseStatusCodesTest {
             "The Content-Header Type specified in the HTTP request header is unsupported.";
 
     @Test
-    public void testGET() {
+    void getTest() {
         for (CodeEnum codeEnum : CodeEnum.values()) {
             int n = codeEnum.getNumber();
             String possibleCause = ResponseStatusCodes.getPossibleCause("GET", n);
@@ -57,7 +58,20 @@ public class ResponseStatusCodesTest {
     }
 
     @Test
-    public void testPOST() {
+    void patchTest() {
+        for (CodeEnum codeEnum : CodeEnum.values()) {
+            int n = codeEnum.getNumber();
+            String possibleCause = ResponseStatusCodes.getPossibleCause("PATCH", n);
+            if (codeEnum.name().contains("PATCH")) {
+                if (n == 204) {
+                    assertThat(possibleCause).isEqualTo(CodeEnum.PATCH_204.getDescription());
+                }
+            }
+        }
+    }
+
+    @Test
+    void postTest() {
         for (CodeEnum codeEnum : CodeEnum.values()) {
             int n = codeEnum.getNumber();
             String possibleCause = ResponseStatusCodes.getPossibleCause("POST", n);
@@ -83,5 +97,13 @@ public class ResponseStatusCodesTest {
                 assertThat(possibleCause).isEqualTo("");
             }
         }
+    }
+
+    @Test
+    void nonExistentEnumTest() {
+        CodeEnum codeEnum = mock(CodeEnum.class);
+        when(codeEnum.getDescription()).thenCallRealMethod();
+        String desc = codeEnum.getDescription();
+        assertThat(desc).isEqualTo(CodeEnum.NO_DESCRIPTION_AVAILABLE);
     }
 }

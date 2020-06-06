@@ -6,6 +6,7 @@ import org.paddy.utils.ResponseStatusCodes;
 import org.springframework.boot.json.BasicJsonParser;
 import org.springframework.boot.json.JsonParser;
 
+import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -17,6 +18,7 @@ import java.util.zip.GZIPInputStream;
 public class OAuth {
     enum Service {AUTHORIZE, TOKEN, REVOKE;}
 
+    public static final String HTTPS = "https://";
     private static final Logger log = LogManager.getLogger(OAuth.class);
     public static final String LOG_ERROR_MESSAGE = "### {}";
     private InputStream responseInputStream;
@@ -50,9 +52,9 @@ public class OAuth {
         String lengthS = String.valueOf(loginCredentials().length());
         int responseCode = -1;
         try {
-            String uri = "https://" + configMap.get("my_domain") + SERVICES_OAUTH_2 + Service.TOKEN.name().toLowerCase();
+            String uri = HTTPS + configMap.get("my_domain") + SERVICES_OAUTH_2 + Service.TOKEN.name().toLowerCase();
             URL url = new URL(uri);
-            connection = (HttpURLConnection) url.openConnection();
+            connection = (HttpsURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
             connection.setUseCaches(false);
             connection.setDoOutput(true);

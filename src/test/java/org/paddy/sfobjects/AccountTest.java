@@ -1,4 +1,4 @@
-package org.paddy.sfObjects;
+package org.paddy.sfobjects;
 
 import org.junit.jupiter.api.Test;
 
@@ -7,8 +7,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class AccountTest {
     @Test
     public void testAccount() {
-        Account account0 = new Account("Accountname");
-        assertThat(account0).isNotNull();
+        final Account account = new Account();
+        account.setName("Accountname");
+        assertThat(account).isNotNull();
         /*
         Account account1 = null;
         try {

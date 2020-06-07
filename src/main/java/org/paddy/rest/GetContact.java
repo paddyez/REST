@@ -1,7 +1,7 @@
 package org.paddy.rest;
 
-import org.paddy.sfObjects.Account;
-import org.paddy.sfObjects.Contact;
+import org.paddy.sfobjects.Account;
+import org.paddy.sfobjects.Contact;
 import org.paddy.utils.NotifyingThread;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;

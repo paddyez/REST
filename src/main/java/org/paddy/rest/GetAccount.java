@@ -1,6 +1,6 @@
 package org.paddy.rest;
 
-import org.paddy.sfObjects.Account;
+import org.paddy.sfobjects.Account;
 import org.paddy.utils.NotifyingThread;
 import org.springframework.web.client.RestTemplate;
 

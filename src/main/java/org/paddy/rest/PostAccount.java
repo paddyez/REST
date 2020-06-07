@@ -1,7 +1,7 @@
 package org.paddy.rest;
 
 import org.apache.log4j.Logger;
-import org.paddy.sfObjects.Account;
+import org.paddy.sfobjects.Account;
 import org.paddy.utils.ConsoleColors;
 import org.paddy.utils.NotifyingThread;
 import org.paddy.utils.ResponseStatusCodes;
@@ -12,22 +12,18 @@ import org.springframework.web.client.RestTemplate;
 import java.util.*;
 
 public class PostAccount extends NotifyingThread {
-    private static final Logger log = Logger.getLogger(PostAccount.class);
-    private String baseURI;
+    private static final Logger LOGGER = Logger.getLogger(PostAccount.class);
+    private final String baseURI;
 
     public PostAccount(String baseURI) {
         this.baseURI = baseURI;
     }
 
-    void insertAccount() {
-        Account a = new Account("TestAccount");
-    }
-
     private void insertAccounts() {
         Set<String> accountsS = new LinkedHashSet<>();
-        Account a;
         for (int i = 0; i < 1000; i++) {
-            a = new Account("TestAccount Tester" + i);
+            final Account a = new Account();
+            a.setName("TestAccount Tester" + i);
             accountsS.add(a.getJSON());
         }
         String newAccounts = "{\"sObjects\":[";
@@ -41,16 +37,16 @@ public class PostAccount extends NotifyingThread {
         try {
             result = restTemplate.postForEntity(this.baseURI, requestBody, String.class);
             HttpStatus statusHS = result.getStatusCode();
-            int statusi = statusHS.value();
+            int states = statusHS.value();
             String response = getResponse(result);
             if (statusHS == HttpStatus.OK) {
-                log.info("Accounts created: server status code: " + statusi + "\n" + response);
+                LOGGER.info("Accounts created: server status code: " + states + "\n" + response);
             } else {
-                log.error("Failed to create Accounts server status code: " + statusi + "\n" + response);
+                LOGGER.error("Failed to create Accounts server status code: " + states + "\n" + response);
             }
-        } catch (HttpServerErrorException hsee) {
-            int code = Integer.parseInt(Objects.requireNonNull(hsee.getMessage()).substring(0, 3));
-            log.error(hsee.getMessage() + ":\n" + ResponseStatusCodes.getPossibleCause("POST", code));
+        } catch (HttpServerErrorException httpServerErrorException) {
+            int code = Integer.parseInt(Objects.requireNonNull(httpServerErrorException.getMessage()).substring(0, 3));
+            LOGGER.error(ResponseStatusCodes.getPossibleCause("POST", code) + "\n", httpServerErrorException);
         }
     }
 
